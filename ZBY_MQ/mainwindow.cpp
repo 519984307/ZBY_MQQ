@@ -7,10 +7,18 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    QSettings set(QDir::toNativeSeparators("Sys.ini"),QSettings::IniFormat);
+    set.setIniCodec("UTF-8");
+
+    set.beginGroup("Sys");
+    MQPort = set.value("MQPort",5672).toInt();
+    Channel = set.value("Channel",001).toInt();
+    TCPPort = set.value("TCPPort",12011).toInt();
+    set.endGroup();
+
     qRegisterMetaType<QtMsgType>("QtMsgType");
     pLog=QSharedPointer<LogController>(new LogController("ZBY_MQ",this));
     connect(pLog.data(),SIGNAL(signal_newLogText(QtMsgType,QDateTime,QString)),this,SLOT(slot_newLogText(QtMsgType,QDateTime,QString)));
-
 
     QDir plugin(QCoreApplication::applicationDirPath());
     for(const QString &fileName :plugin.entryList(QDir::Files)){
@@ -42,20 +50,12 @@ MainWindow::MainWindow(QWidget *parent)
     /*****************************
     * @brief:初始化
     ******************************/
-    TCP_InitializationParameterSignal("127.0.0.1",33081,1,false,0,0,0);
-    MQ_InitializationParameterSignal("127.0.0.1|zby|ABCabc123|/zby",5672,1,false,0,0,0);
+    TCP_InitializationParameterSignal("127.0.0.1",TCPPort,1,false,0,0,0);
+    MQ_InitializationParameterSignal("127.0.0.1|zby|ABCabc123|/zby",MQPort,1,false,0,0,0);
 }
 
 MainWindow::~MainWindow()
 {
-//    delete mq;
-//    delete tcp;
-
-//    mq=nullptr;
-//    tcp=nullptr;
-
-//    pLog=nullptr;
-
     delete ui;
 }
 
@@ -100,7 +100,7 @@ void MainWindow::writeLog(const QString &msg)
 void MainWindow::socketReadDataSlot(int channel_number, const QString &result)
 {
     Q_UNUSED(channel_number);
-    emit toSendDataSignal(115,result);
+    emit toSendDataSignal(Channel,result);
 }
 
 

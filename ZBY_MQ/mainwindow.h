@@ -10,6 +10,7 @@
 #include <QCloseEvent>
 #include <QPointer>
 #include <QSharedPointer>
+#include <QSettings>
 
 #include "../LogController/logcontroller.h"
 #include "datainterchangeinterface.h"
@@ -42,6 +43,21 @@ private:
     /// \brief pLog 日志
     ///
     QSharedPointer<LogController> pLog;
+
+    ///
+    /// \brief MQPort mq端口
+    ///
+    int MQPort;
+
+    ///
+    /// \brief Channel 通道号，附加到队列名
+    ///
+    int Channel;
+
+    ///
+    /// \brief TCPPort tcp端口号
+    ///
+    int TCPPort;
 
 signals:
 
