@@ -31,6 +31,7 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
+RC_ICONS=ICO.ico
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../LogController/release/ -lCc1_Logging
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../LogController/debug/ -lCc1_Loggingd

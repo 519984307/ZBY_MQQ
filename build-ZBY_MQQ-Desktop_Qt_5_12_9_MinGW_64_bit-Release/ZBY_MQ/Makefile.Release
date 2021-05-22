@@ -19,13 +19,13 @@ CXXFLAGS      = -fno-keep-inline-dllexport -O2 -std=gnu++11 -Wall -W -Wextra -fe
 INCPATH       = -I..\..\ZBY_MQQ\ZBY_MQ -I. -I..\..\ZBY_MQQ\LogController -IC:\Qt\Qt5.12.9\5.12.9\mingw73_64\include -IC:\Qt\Qt5.12.9\5.12.9\mingw73_64\include\QtWidgets -IC:\Qt\Qt5.12.9\5.12.9\mingw73_64\include\QtGui -IC:\Qt\Qt5.12.9\5.12.9\mingw73_64\include\QtANGLE -IC:\Qt\Qt5.12.9\5.12.9\mingw73_64\include\QtCore -Irelease -I. -I/include -IC:\Qt\Qt5.12.9\5.12.9\mingw73_64\mkspecs\win32-g++ 
 LINKER      =        g++
 LFLAGS        =        -Wl,-s -Wl,-subsystem,windows -mthreads
-LIBS        =        -LC:\Users\cc\Documents\Qt\build-ZBY_MQQ-Desktop_Qt_5_12_9_MinGW_64_bit-Release\LogController\release -lCc1_Logging C:\Qt\Qt5.12.9\5.12.9\mingw73_64\lib\libQt5Widgets.a C:\Qt\Qt5.12.9\5.12.9\mingw73_64\lib\libQt5Gui.a C:\Qt\Qt5.12.9\5.12.9\mingw73_64\lib\libQt5Core.a  -lmingw32 C:\Qt\Qt5.12.9\5.12.9\mingw73_64\lib\libqtmain.a -LC:\openssl\lib -LC:\Utils\my_sql\mysql-5.6.11-winx64\lib -LC:\Utils\postgresql\pgsql\lib -lshell32 
+LIBS        =        -LC:\Users\cc\Documents\Qt\build-ZBY_MQQ-Desktop_Qt_5_12_9_MinGW_64_bit-Release\LogController\release -lCc1_Logging C:\Qt\Qt5.12.9\5.12.9\mingw73_64\lib\libQt5Widgets.a C:\Qt\Qt5.12.9\5.12.9\mingw73_64\lib\libQt5Gui.a C:\Qt\Qt5.12.9\5.12.9\mingw73_64\lib\libQt5Core.a release\ZBY_MQ_resource_res.o  -lmingw32 C:\Qt\Qt5.12.9\5.12.9\mingw73_64\lib\libqtmain.a -LC:\openssl\lib -LC:\Utils\my_sql\mysql-5.6.11-winx64\lib -LC:\Utils\postgresql\pgsql\lib -lshell32 
 QMAKE         = C:\Qt\Qt5.12.9\5.12.9\mingw73_64\bin\qmake.exe
 IDC           = idc
 IDL           = midl
 ZIP           = zip -r -9
 DEF_FILE      = 
-RES_FILE      = 
+RES_FILE      = release\ZBY_MQ_resource_res.o
 COPY          = copy /y
 SED           = $(QMAKE) -install sed
 COPY_FILE     = copy /y
@@ -68,8 +68,11 @@ DESTDIR_TARGET = release\ZBY_MQ.exe
 first: all
 all: Makefile.Release  release/ZBY_MQ.exe
 
-release/ZBY_MQ.exe: C:/Qt/Qt5.12.9/5.12.9/mingw73_64/lib/libQt5Widgets.a C:/Qt/Qt5.12.9/5.12.9/mingw73_64/lib/libQt5Gui.a C:/Qt/Qt5.12.9/5.12.9/mingw73_64/lib/libQt5Core.a C:/Qt/Qt5.12.9/5.12.9/mingw73_64/lib/libqtmain.a ui_mainwindow.h $(OBJECTS) 
+release/ZBY_MQ.exe: C:/Qt/Qt5.12.9/5.12.9/mingw73_64/lib/libQt5Widgets.a C:/Qt/Qt5.12.9/5.12.9/mingw73_64/lib/libQt5Gui.a C:/Qt/Qt5.12.9/5.12.9/mingw73_64/lib/libQt5Core.a C:/Qt/Qt5.12.9/5.12.9/mingw73_64/lib/libqtmain.a ui_mainwindow.h $(OBJECTS) release/ZBY_MQ_resource_res.o
 	$(LINKER) $(LFLAGS) -o $(DESTDIR_TARGET) $(OBJECTS)  $(LIBS)
+
+release/ZBY_MQ_resource_res.o: ZBY_MQ_resource.rc
+	windres -i ZBY_MQ_resource.rc -o release\ZBY_MQ_resource_res.o --include-dir=. $(DEFINES)
 
 qmake: FORCE
 	@$(QMAKE) -o Makefile.Release ..\..\ZBY_MQQ\ZBY_MQ\ZBY_MQ.pro -spec win32-g++ "CONFIG+=qtquickcompiler"
@@ -81,6 +84,7 @@ dist:
 
 clean: compiler_clean 
 	-$(DEL_FILE) release\main.o release\mainwindow.o release\moc_datainterchangeinterface.o release\moc_mainwindow.o
+	-$(DEL_FILE) release\ZBY_MQ_resource_res.o
 
 distclean: clean 
 	-$(DEL_FILE) $(DESTDIR_TARGET)
@@ -290,6 +294,8 @@ release/moc_mainwindow.cpp: ../../ZBY_MQQ/ZBY_MQ/mainwindow.h \
 		C:/Qt/Qt5.12.9/5.12.9/mingw73_64/include/QtGui/QCloseEvent \
 		C:/Qt/Qt5.12.9/5.12.9/mingw73_64/include/QtCore/QPointer \
 		C:/Qt/Qt5.12.9/5.12.9/mingw73_64/include/QtCore/QSharedPointer \
+		C:/Qt/Qt5.12.9/5.12.9/mingw73_64/include/QtCore/QSettings \
+		C:/Qt/Qt5.12.9/5.12.9/mingw73_64/include/QtCore/qsettings.h \
 		../../ZBY_MQQ/LogController/logcontroller.h \
 		C:/Qt/Qt5.12.9/5.12.9/mingw73_64/include/QtCore/QObject \
 		../../ZBY_MQQ/LogController/LogController_global.h \
@@ -444,6 +450,8 @@ release/main.o: ../../ZBY_MQQ/ZBY_MQ/main.cpp ../../ZBY_MQQ/ZBY_MQ/mainwindow.h 
 		C:/Qt/Qt5.12.9/5.12.9/mingw73_64/include/QtGui/QCloseEvent \
 		C:/Qt/Qt5.12.9/5.12.9/mingw73_64/include/QtCore/QPointer \
 		C:/Qt/Qt5.12.9/5.12.9/mingw73_64/include/QtCore/QSharedPointer \
+		C:/Qt/Qt5.12.9/5.12.9/mingw73_64/include/QtCore/QSettings \
+		C:/Qt/Qt5.12.9/5.12.9/mingw73_64/include/QtCore/qsettings.h \
 		../../ZBY_MQQ/LogController/logcontroller.h \
 		C:/Qt/Qt5.12.9/5.12.9/mingw73_64/include/QtCore/QObject \
 		../../ZBY_MQQ/LogController/LogController_global.h \
@@ -580,12 +588,15 @@ release/mainwindow.o: ../../ZBY_MQQ/ZBY_MQ/mainwindow.cpp ../../ZBY_MQQ/ZBY_MQ/m
 		C:/Qt/Qt5.12.9/5.12.9/mingw73_64/include/QtGui/QCloseEvent \
 		C:/Qt/Qt5.12.9/5.12.9/mingw73_64/include/QtCore/QPointer \
 		C:/Qt/Qt5.12.9/5.12.9/mingw73_64/include/QtCore/QSharedPointer \
+		C:/Qt/Qt5.12.9/5.12.9/mingw73_64/include/QtCore/QSettings \
+		C:/Qt/Qt5.12.9/5.12.9/mingw73_64/include/QtCore/qsettings.h \
 		../../ZBY_MQQ/LogController/logcontroller.h \
 		C:/Qt/Qt5.12.9/5.12.9/mingw73_64/include/QtCore/QObject \
 		../../ZBY_MQQ/LogController/LogController_global.h \
 		../../ZBY_MQQ/ZBY_MQ/datainterchangeinterface.h \
 		ui_mainwindow.h \
 		C:/Qt/Qt5.12.9/5.12.9/mingw73_64/include/QtCore/QVariant \
+		C:/Qt/Qt5.12.9/5.12.9/mingw73_64/include/QtGui/QIcon \
 		C:/Qt/Qt5.12.9/5.12.9/mingw73_64/include/QtWidgets/QApplication \
 		C:/Qt/Qt5.12.9/5.12.9/mingw73_64/include/QtWidgets/qapplication.h \
 		C:/Qt/Qt5.12.9/5.12.9/mingw73_64/include/QtCore/qcoreapplication.h \
