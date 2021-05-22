@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>ZBY_MQ</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../../Container_Multiple_Channels_20200522/Container_Multiple_Channels_20200522/Main/ICO/ICO.ico</normaloff>../../Container_Multiple_Channels_20200522/Container_Multiple_Channels_20200522/Main/ICO/ICO.ico</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="1" column="1">
