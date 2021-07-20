@@ -50,6 +50,26 @@ private:
     int MQPort;
 
     ///
+    /// \brief MQAddr mq地址
+    ///
+    QString MQAddr;
+
+    ///
+    /// \brief MQUser mq用户
+    ///
+    QString MQUser;
+
+    ///
+    /// \brief MQPass mq密码
+    ///
+    QString MQPass;
+
+    ///
+    /// \brief MQHost mq主机名
+    ///
+    QString MQHost;
+
+    ///
     /// \brief Channel 通道号，附加到队列名
     ///
     int Channel;
@@ -58,6 +78,11 @@ private:
     /// \brief TCPPort tcp端口号
     ///
     int TCPPort;
+
+    ///
+    /// \brief TCPAddr tcp地址
+    ///
+    QString TCPAddr;
 
 signals:
 

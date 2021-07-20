@@ -14,6 +14,11 @@ MainWindow::MainWindow(QWidget *parent)
     MQPort = set.value("MQPort",5672).toInt();
     Channel = set.value("Channel",001).toInt();
     TCPPort = set.value("TCPPort",12011).toInt();
+    MQAddr = set.value("MQAddr","127.0.0.1").toString();
+    MQUser = set.value("MQUser","zby").toString();
+    MQPass = set.value("MQPass","ABCabc123").toString();
+    MQHost = set.value("MQHost","/zby").toString();
+    TCPAddr = set.value("TCPAddr","127.0.0.1").toString();
     set.endGroup();
 
     qRegisterMetaType<QtMsgType>("QtMsgType");
@@ -46,12 +51,20 @@ MainWindow::MainWindow(QWidget *parent)
             plugin=nullptr;
         }
     }
+    MQPort = set.value("MQPort",5672).toInt();
+    Channel = set.value("Channel",001).toInt();
+    TCPPort = set.value("TCPPort",12011).toInt();
+    MQAddr = set.value("MQAddr","127.0.0.1").toString();
+    MQUser = set.value("MQUser","zby").toString();
+    MQPass = set.value("MQPass","ABCabc123").toString();
+    MQHost = set.value("MQHost","/zby").toString();
+    TCPAddr = set.value("TCPAddr","127.0.0.1").toString();
 
     /*****************************
     * @brief:初始化
     ******************************/
-    TCP_InitializationParameterSignal("127.0.0.1",TCPPort,1,false,0,0,0);
-    MQ_InitializationParameterSignal("127.0.0.1|zby|ABCabc123|/zby",MQPort,1,false,0,0,0);
+    TCP_InitializationParameterSignal(TCPAddr,TCPPort,1,false,0,0,0);
+    MQ_InitializationParameterSignal(QString("%1|%2|%3|%4").arg(MQAddr,MQUser,MQPass,MQHost),MQPort,1,false,0,0,0);
 }
 
 MainWindow::~MainWindow()
