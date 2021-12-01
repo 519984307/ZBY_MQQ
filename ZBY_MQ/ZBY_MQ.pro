@@ -38,3 +38,10 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../LogController/de
 
 INCLUDEPATH += $$PWD/../LogController
 DEPENDPATH += $$PWD/../LogController
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../DataInterSerailPort/release/ -lCc1_SerialPort
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../DataInterSerailPort/debug/ -lCc1_SerialPort
+else:unix: LIBS += -L$$OUT_PWD/../DataInterSerailPort/ -lCc1_SerialPort
+
+INCLUDEPATH += $$PWD/../DataInterSerailPort
+DEPENDPATH += $$PWD/../DataInterSerailPort

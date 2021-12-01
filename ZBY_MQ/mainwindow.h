@@ -5,6 +5,7 @@
 
 #include <QDir>
 #include <QPluginLoader>
+#include <QTimer>
 #include <QDebug>
 #include <QDateTime>
 #include <QCloseEvent>
@@ -13,6 +14,7 @@
 #include <QSettings>
 
 #include "../LogController/logcontroller.h"
+#include "../DataInterSerailPort/datainterserailport.h"
 #include "datainterchangeinterface.h"
 
 QT_BEGIN_NAMESPACE
@@ -43,6 +45,8 @@ private:
     /// \brief pLog 日志
     ///
     QSharedPointer<LogController> pLog;
+
+    QSharedPointer<DataInterSerailPort> pPort;
 
     ///
     /// \brief MQPort mq端口
@@ -84,6 +88,56 @@ private:
     ///
     QString TCPAddr;
 
+    ///
+    /// \brief PortName 端口号
+    ///
+    QString PortName;
+
+    ///
+    /// \brief PortBaud 波特率
+    ///
+    qint32 PortBaud;
+
+    ///
+    /// \brief PortData 数据位
+    ///
+    int PortData;
+
+    ///
+    /// \brief PortStop 停止位
+    ///
+    int PortStop;
+
+    ///
+    /// \brief PortParity 校验位
+    ///
+    int PortParity;
+
+    ///
+    /// \brief weight 最低重量判断作业
+    ///
+    int weight;
+
+    ///
+    /// \brief beating 过滤调动时间
+    ///
+    int beating;
+
+    ///
+    /// \brief batch 做工次数
+    ///
+    int batch;
+
+    ///
+    /// \brief work 做工
+    ///
+    bool work;
+
+    ///
+    /// \brief workTimtOut 做功波动超时
+    ///
+    QTimer* workTimtOut;
+
 signals:
 
     void  MQ_InitializationParameterSignal(const QString& address,const quint16& port,const int& serviceType,const bool& heartBeat, const int& serviceMode,const int& shortLink,const int& newline);
@@ -106,6 +160,25 @@ private slots:
     /// \param data 数据体
     ///
     void socketReadDataSlot(int channel_number,const QString& result);
+
+    ////
+    /// \brief getPoundsSlot 获取磅重
+    /// \param x
+    /// \param y
+    /// \param w
+    ///
+    void getPoundsSlot(int x,int y,int w);
+
+    ///
+    /// \brief workTimeOutSlot 作业波动检测
+    ///
+    void workTimeOutSlot();
+
+    ///
+    /// \brief startStatusSlot 串口打开状态
+    /// \param status
+    ///
+    void startStatusSlot(bool status);
 
     void MQ_socketLinkStateSlot(const QString &address,quint16 port,bool state);
     void TCP_socketLinkStateSlot(const QString &address,quint16 port,bool state);

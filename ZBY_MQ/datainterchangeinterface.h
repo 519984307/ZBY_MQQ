@@ -57,6 +57,11 @@ signals:
     ///
     void signal_sendDataSuccToLog(int channel_number,  QString result);
 
+    ///
+    /// \brief signal_lifting 抬杆信号
+    ///
+    void signal_lifting();
+
 public slots:
 
     ///
@@ -84,7 +89,7 @@ public slots:
 
 };
 
-#define DataInterchangeInterfaceIID "ZBY.ContainerServer.DataInterchangeInterface/1.2.3.4"
+#define DataInterchangeInterfaceIID "ZBY.ContainerServer.DataInterchangeInterface/1.2.4.4"
 Q_DECLARE_INTERFACE(DataInterchangeInterface,DataInterchangeInterfaceIID);
 
 #endif // DATAINTERCHANGEINTERFACE_H
