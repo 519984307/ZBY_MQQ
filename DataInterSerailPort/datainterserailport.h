@@ -41,6 +41,11 @@ signals:
 private:
 
     ///
+    /// \brief firstBuf 上次数据流
+    ///
+    QByteArray firstBuf;
+
+    ///
     /// \brief buf 串口数据流
     ///
     QByteArray buf;

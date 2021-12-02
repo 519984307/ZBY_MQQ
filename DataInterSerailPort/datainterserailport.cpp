@@ -52,13 +52,17 @@ void DataInterSerailPort::receiveDataSlot()
 {
     QByteArray data=pSerial->readAll().toHex();
 
-    if(data.mid(0,28)==buf.mid(0,28)){
-        return;
-    }
-
     buf.append(data);
 
     if(buf.size()>=44){
+
+        if(firstBuf.mid(0,28)==buf.mid(0,28)){
+            return;
+        }
+        else {
+            firstBuf=buf;
+        }
+
         if(buf.startsWith("7e") && buf.endsWith("0a")){
             int j=1;
             for(int i=4;i<buf.size();){
@@ -87,19 +91,19 @@ void DataInterSerailPort::receiveDataSlot()
         }
         buf.clear();
         data.clear();
+
+        int x,y,w;
+
+        x=QByteArray::fromHex(xBuf.toHex()).toUInt(0,16);
+        y=QByteArray::fromHex(yBuf.toHex()).toUInt(0,16);
+        w=QByteArray::fromHex(wBuf.toHex()).toUInt(0,16);
+
+        emit getPoundsSignal(x,y,w);
+
+        xBuf.clear();
+        yBuf.clear();
+        wBuf.clear();
     }
-
-    int x,y,w;
-
-    x=QByteArray::fromHex(xBuf.toHex()).toUInt(0,16);
-    y=QByteArray::fromHex(yBuf.toHex()).toUInt(0,16);
-    w=QByteArray::fromHex(wBuf.toHex()).toUInt(0,16);
-
-    emit getPoundsSignal(x,y,w);
-
-    xBuf.clear();
-    yBuf.clear();
-    wBuf.clear();
 }
 
 void DataInterSerailPort::autoLinkSlot()

@@ -33,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
     ******************************/
     work=false;
     batch=0;
+    dd="";
 
     workTimtOut=new QTimer(this);
     workTimtOut->setSingleShot(true);
@@ -82,6 +83,25 @@ MainWindow::MainWindow(QWidget *parent)
     connect(pPort.data(),&DataInterSerailPort::getPoundsSignal,this,&MainWindow::getPoundsSlot);
     connect(pPort.data(),&DataInterSerailPort::startStatusSignal,this,&MainWindow::startStatusSlot);
     pPort->startSlave(PortName,PortBaud,PortData,PortStop,PortParity,0);
+
+    /*****************************
+    * @brief:初始化统计数据
+    ******************************/
+    QString date=QDate::currentDate().toString("yyyy-MM-dd");
+    if(!QDir("statistical").exists()){
+        QDir().mkpath("statistical");
+    }
+    statistical.setFileName(QDir::toNativeSeparators(QString("statistical/%1").arg(date)));
+    statistical.open( QIODevice::ReadOnly | QIODevice::Text | QIODevice::Unbuffered );
+
+    int line=0;
+    while (!statistical.atEnd()) {
+        if(!statistical.readLine().isEmpty()){
+            line++;
+        }
+    }
+    statistical.close();
+    ui->spinBox->setValue(line);
 }
 
 MainWindow::~MainWindow()
@@ -130,6 +150,34 @@ void MainWindow::writeLog(const QString &msg)
     ui->plainTextEdit->appendPlainText(QString("[%1] [%2] %3").arg("ZBY_MQ",QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"),msg));
 }
 
+void MainWindow::statisticalLog(int w)
+{
+#ifdef Q_OS_LINUX
+    QString eol = "\n";
+#endif
+#ifdef Q_OS_WIN
+    QString eol = "\r\n";
+#endif
+
+    QString date=QDate::currentDate().toString("yyyy-MM-dd");
+
+    if(dd.isEmpty()){
+        dd=date;
+    }
+    else {
+        if(dd!=date){
+            batch=1;
+            ui->spinBox->setValue(batch);
+        }
+    }
+
+    statistical.setFileName(QDir::toNativeSeparators(QString("statistical/%1").arg(date)));
+    statistical.open( QIODevice::Append | QIODevice::Text | QIODevice::Unbuffered );
+    statistical.write(QString("%1-%2%3").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss zzz"),QString::number(w)).toUtf8());
+    statistical.write(eol.toUtf8());
+    statistical.close();
+}
+
 void MainWindow::socketReadDataSlot(int channel_number, const QString &result)
 {
     Q_UNUSED(channel_number);
@@ -145,6 +193,8 @@ void MainWindow::getPoundsSlot(int x, int y, int w)
         if(!work){
             batch++;
             ui->label_3->setStyleSheet("background-color: rgb(0, 170, 0);color: rgb(255, 255, 255);");
+
+            QtConcurrent::run(this,&MainWindow::statisticalLog,w);
         }
         work=true;
     }
@@ -166,7 +216,7 @@ void MainWindow::getPoundsSlot(int x, int y, int w)
     ui->spinBox->setValue(batch);
     ui->spinBox_2->setValue(x);
     ui->spinBox_3->setValue(y);
-    ui->spinBox_4->setValue(w);
+    ui->spinBox_4->setValue(w);    
 }
 
 void MainWindow::workTimeOutSlot()
@@ -243,4 +293,16 @@ void MainWindow::slot_newLogText(QtMsgType type, QDateTime time, QString value)
 void MainWindow::on_pushButton_3_clicked()
 {
     ui->plainTextEdit->clear();
+}
+
+void MainWindow::on_checkBox_stateChanged(int arg1)
+{
+    if(arg1==Qt::Unchecked){
+        ui->groupBox->setVisible(false);
+        this->setFixedSize(1142,60);
+    }
+    if(arg1==Qt::Checked){
+        ui->groupBox->setVisible(true);
+        this->setFixedSize(1142,500);
+    }
 }

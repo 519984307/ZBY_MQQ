@@ -12,6 +12,9 @@
 #include <QPointer>
 #include <QSharedPointer>
 #include <QSettings>
+#include <QFile>
+#include <QStandardPaths>
+#include <QtConcurrent>
 
 #include "../LogController/logcontroller.h"
 #include "../DataInterSerailPort/datainterserailport.h"
@@ -38,15 +41,34 @@ public:
     void tcpProcess(DataInterchangeInterface* tcp);
     void writeLog(const QString &msg);
 
+    ///
+    /// \brief statisticalLog 做工数据写入日志
+    /// \param w
+    ///
+    void statisticalLog(int w);
+
 private:
     Ui::MainWindow *ui;
 
     ///
-    /// \brief pLog 日志
+    /// \brief dd 写入时间戳
+    ///
+    QString dd;
+
+    ///
+    /// \brief pLog 日志类
     ///
     QSharedPointer<LogController> pLog;
 
+    ///
+    /// \brief pPort 串口数据处理类
+    ///
     QSharedPointer<DataInterSerailPort> pPort;
+
+    ///
+    /// \brief statistical 统计文件
+    ///
+    QFile statistical;
 
     ///
     /// \brief MQPort mq端口
@@ -180,10 +202,33 @@ private slots:
     ///
     void startStatusSlot(bool status);
 
+    ///
+    /// \brief MQ_socketLinkStateSlot MQ链接状态
+    /// \param address
+    /// \param port
+    /// \param state
+    ///
     void MQ_socketLinkStateSlot(const QString &address,quint16 port,bool state);
+
+    ///
+    /// \brief TCP_socketLinkStateSlot TCP链接状态
+    /// \param address
+    /// \param port
+    /// \param state
+    ///
     void TCP_socketLinkStateSlot(const QString &address,quint16 port,bool state);
 
     void slot_newLogText(QtMsgType type,QDateTime time,QString value);
+
+    ///
+    /// \brief on_pushButton_3_clicked 清除日志
+    ///
     void on_pushButton_3_clicked();
+
+    ///
+    /// \brief on_checkBox_stateChanged 显示隐藏日志
+    /// \param arg1
+    ///
+    void on_checkBox_stateChanged(int arg1);
 };
 #endif // MAINWINDOW_H
