@@ -56,7 +56,8 @@ void DataInterSerailPort::receiveDataSlot()
 
     if(buf.size()>=44){
 
-        if(firstBuf.mid(0,28)==buf.mid(0,28)){
+        if(!firstBuf.isEmpty() && (firstBuf.mid(0,28)==buf.mid(0,28))){
+            buf.clear();
             return;
         }
         else {

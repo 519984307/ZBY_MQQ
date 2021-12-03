@@ -102,6 +102,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
     statistical.close();
     ui->spinBox->setValue(line);
+    batch=line;
 }
 
 MainWindow::~MainWindow()
@@ -173,7 +174,7 @@ void MainWindow::statisticalLog(int w)
 
     statistical.setFileName(QDir::toNativeSeparators(QString("statistical/%1").arg(date)));
     statistical.open( QIODevice::Append | QIODevice::Text | QIODevice::Unbuffered );
-    statistical.write(QString("%1-%2%3").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss zzz"),QString::number(w)).toUtf8());
+    statistical.write(QString("%1 - %2").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss-zzz"),QString::number(w)).toUtf8());
     statistical.write(eol.toUtf8());
     statistical.close();
 }
