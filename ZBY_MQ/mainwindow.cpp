@@ -167,6 +167,7 @@ void MainWindow::statisticalLog(int w)
     }
     else {
         if(dd!=date){
+            dd=date;
             batch=1;
             ui->spinBox->setValue(batch);
         }
@@ -193,6 +194,7 @@ void MainWindow::getPoundsSlot(int x, int y, int w)
     if(w>weight && !work){
         if(!work){
             batch++;
+            ui->spinBox->setValue(batch);
             ui->label_3->setStyleSheet("background-color: rgb(0, 170, 0);color: rgb(255, 255, 255);");
 
             QtConcurrent::run(this,&MainWindow::statisticalLog,w);
@@ -214,7 +216,6 @@ void MainWindow::getPoundsSlot(int x, int y, int w)
         workTimtOut->start(beating*1000);
     }
 
-    ui->spinBox->setValue(batch);
     ui->spinBox_2->setValue(x);
     ui->spinBox_3->setValue(y);
     ui->spinBox_4->setValue(w);    
