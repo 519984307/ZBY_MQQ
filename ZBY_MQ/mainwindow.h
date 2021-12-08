@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
+#include <QObject>
 #include <QDir>
 #include <QPluginLoader>
 #include <QTimer>
@@ -18,6 +18,7 @@
 
 #include "../LogController/logcontroller.h"
 #include "../DataInterSerailPort/datainterserailport.h"
+#include "../DataInterModbus/dataintermodbus.h"
 #include "datainterchangeinterface.h"
 
 QT_BEGIN_NAMESPACE
@@ -34,11 +35,24 @@ public:
 
     void closeEvent(QCloseEvent *event)Q_DECL_OVERRIDE;
 
-    DataInterchangeInterface* mq;
-    DataInterchangeInterface* tcp;
+private:
 
+    ///
+    /// \brief mqProcess mq线程处理
+    /// \param mq
+    ///
     void mqProcess(DataInterchangeInterface* mq);
+
+    ///
+    /// \brief tcpProcess tcp线程处理
+    /// \param tcp
+    ///
     void tcpProcess(DataInterchangeInterface* tcp);
+
+    ///
+    /// \brief writeLog 日志
+    /// \param msg
+    ///
     void writeLog(const QString &msg);
 
     ///
@@ -47,13 +61,24 @@ public:
     ///
     void statisticalLog(int w);
 
+    ///
+    /// \brief setting 初始化参数
+    ///
+    void setting();
+
 private:
+
     Ui::MainWindow *ui;
 
     ///
-    /// \brief dd 写入时间戳
+    /// \brief mq MQ接口处理类
     ///
-    QString dd;
+    DataInterchangeInterface* mq;
+
+    ///
+    /// \brief tcp TCP接口处理类
+    ///
+    DataInterchangeInterface* tcp;
 
     ///
     /// \brief pLog 日志类
@@ -66,9 +91,21 @@ private:
     QSharedPointer<DataInterSerailPort> pPort;
 
     ///
+    /// \brief pModbus PLC数据处理类
+    ///
+    QSharedPointer<DataInterModbus> pModbus;
+
+    ///
+    /// \brief dd 写入时间戳
+    ///
+    QString dd;
+
+    ///
     /// \brief statistical 统计文件
     ///
     QFile statistical;
+
+    //MQ
 
     ///
     /// \brief MQPort mq端口
@@ -109,6 +146,9 @@ private:
     /// \brief TCPAddr tcp地址
     ///
     QString TCPAddr;
+
+
+    //com
 
     ///
     /// \brief PortName 端口号
@@ -160,6 +200,38 @@ private:
     ///
     QTimer* workTimtOut;
 
+    //modbus
+
+    ///
+    /// \brief modbusAddr 地址
+    ///
+    QString modbusAddr;
+
+    ///
+    /// \brief modbusPort 端口
+    ///
+    int modbusPort;
+
+    ///
+    /// \brief decID 设备地址
+    ///
+    int decID;
+
+    ///
+    /// \brief startAddr 数据起始地址
+    ///
+    int startAddr;
+
+    ///
+    /// \brief mdLen 数据长度
+    ///
+    int mdLen;
+
+    ///
+    /// \brief request 轮询时间
+    ///
+    int request;
+
 signals:
 
     void  MQ_InitializationParameterSignal(const QString& address,const quint16& port,const int& serviceType,const bool& heartBeat, const int& serviceMode,const int& shortLink,const int& newline);
@@ -174,6 +246,17 @@ signals:
     ///
     void toSendDataSignal(int channel_number, const QString &data);
 
+    ///
+    /// \brief setLockStateSignal 设置开闭锁状态
+    /// \param state
+    ///
+    void setLockStateSignal(bool state);
+
+    ///
+    /// \brief setComState 设置串口状态到modbus，串口失败就使用modbus开闭锁信息
+    /// \param status
+    ///
+    void setComState(bool status);
 
 private slots:
 
@@ -192,6 +275,17 @@ private slots:
     void getPoundsSlot(int x,int y,int w);
 
     ///
+    /// \brief getPlcStatusSlot 获取plc状态
+    /// \param x 小车
+    /// \param y 大车
+    /// \param z 吊具
+    /// \param lock 开闭锁
+    /// \param sling 20/40状态
+    /// \param box 着箱
+    ///
+    void getPlcStatusSlot(QMap<QString, int> msg);
+
+    ///
     /// \brief workTimeOutSlot 作业波动检测
     ///
     void workTimeOutSlot();
@@ -201,6 +295,18 @@ private slots:
     /// \param status
     ///
     void startStatusSlot(bool status);
+
+    ///
+    /// \brief modbusStatusSlot modbus打开状态
+    /// \param status
+    ///
+    void modbusStatusSlot(bool status);
+
+    ///
+    /// \brief connectSlaveSlot 主机链接状态
+    /// \param status
+    ///
+    void connectSlaveSlot(bool status);
 
     ///
     /// \brief MQ_socketLinkStateSlot MQ链接状态
@@ -218,6 +324,12 @@ private slots:
     ///
     void TCP_socketLinkStateSlot(const QString &address,quint16 port,bool state);
 
+    ///
+    /// \brief slot_newLogText 状态写入日志
+    /// \param type
+    /// \param time
+    /// \param value
+    ///
     void slot_newLogText(QtMsgType type,QDateTime time,QString value);
 
     ///

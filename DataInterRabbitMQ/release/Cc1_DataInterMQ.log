@@ -1,0 +1,7 @@
+﻿  Generate moc_predefs.h
+  Moc'ing datainterchangeinterface.h...
+  Moc'ing datainterrabbitmq.h...
+  datainterrabbitmq.cpp
+  moc_datainterchangeinterface.cpp
+  moc_datainterrabbitmq.cpp
+LINK : fatal error LNK1181: 无法打开输入文件“C:\Users\cc\Documents\Qt\Container_Multiple_Channels_20200522\Container_Multiple_Channels_20200522\Qamqp\Cc1_Qamqp.lib”

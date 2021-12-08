@@ -2,7 +2,6 @@
 #define DATAINTERSERAILPORT_GLOBAL_H
 
 #include <QtCore/qglobal.h>
-#include <QObject>
 #include <QtSerialPort/QSerialPort>
 #include <QTimer>
 #include <QDebug>

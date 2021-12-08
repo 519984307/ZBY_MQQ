@@ -7,38 +7,12 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    QSettings set(QDir::toNativeSeparators("Sys.ini"),QSettings::IniFormat);
-    set.setIniCodec("UTF-8");
-
-    set.beginGroup("Sys");
-    MQPort = set.value("MQPort",5672).toInt();
-    Channel = set.value("Channel",001).toInt();
-    TCPPort = set.value("TCPPort",12011).toInt();
-    MQAddr = set.value("MQAddr","127.0.0.1").toString();
-    MQUser = set.value("MQUser","zby").toString();
-    MQPass = set.value("MQPass","ABCabc123").toString();
-    MQHost = set.value("MQHost","/zby").toString();
-    TCPAddr = set.value("TCPAddr","127.0.0.1").toString();
-    PortName = set.value("PortName","com2").toString();
-    PortBaud = set.value("PortBaud",19200).toInt();
-    PortData = set.value("PortData",8).toInt();
-    PortStop = set.value("PortStop",1).toInt();
-    PortParity = set.value("PortParity",0).toInt();
-    weight = set.value("weight",500).toInt();
-    beating = set.value("beating",3).toInt();
-    set.endGroup();
+    qRegisterMetaType<QMap<QString,int>>("QMap<QString,int>");
 
     /*****************************
-    * @brief:判断在做工
+    * @brief:加载参数
     ******************************/
-    work=false;
-    batch=0;
-    dd="";
-
-    workTimtOut=new QTimer(this);
-    workTimtOut->setSingleShot(true);
-    connect(workTimtOut,&QTimer::timeout,this,&MainWindow::workTimeOutSlot);
-
+    setting();
 
     qRegisterMetaType<QtMsgType>("QtMsgType");
     pLog=QSharedPointer<LogController>(new LogController("ZBY_MQ",this));
@@ -71,12 +45,41 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     /*****************************
+    * @brief:判断在做工
+    ******************************/
+    work=false;
+    batch=0;
+    dd="";
+
+    workTimtOut=new QTimer(this);
+    workTimtOut->setSingleShot(true);
+    connect(workTimtOut,&QTimer::timeout,this,&MainWindow::workTimeOutSlot);
+
+    /*****************************
     * @brief:初始化
     ******************************/
     TCP_InitializationParameterSignal(TCPAddr,TCPPort,1,false,0,0,0);
     MQ_InitializationParameterSignal(QString("%1|%2|%3|%4").arg(MQAddr,MQUser,MQPass,MQHost),MQPort,1,false,0,0,0);
 
     /*****************************
+    * @brief:初始化Modbus
+    ******************************/
+    pModbus=QSharedPointer<DataInterModbus>(new DataInterModbus(this));
+    connect(pModbus.data(),&DataInterModbus::connectStateSignal,this,&MainWindow::modbusStatusSlot);
+    connect(pModbus.data(),&DataInterModbus::setPlcStatusSginal,this,&MainWindow::getPlcStatusSlot);
+    connect(pModbus.data(),&DataInterModbus::connectSlaveSignal,this,&MainWindow::connectSlaveSlot);
+    /*****************************
+    * @brief:设置开闭锁状态
+    ******************************/
+    connect(this,&MainWindow::setComState,pModbus.data(),&DataInterModbus::getComState);
+    /*****************************
+    * @brief:设置串口状态
+    ******************************/
+    connect(this,&MainWindow::setLockStateSignal,pModbus.data(),&DataInterModbus::getLockStateSlot);
+
+    pModbus->initModbus(modbusAddr,modbusPort,decID,startAddr,mdLen,request);
+
+    /****************************
     * @brief:初始化参口
     ******************************/
     pPort=QSharedPointer<DataInterSerailPort>(new DataInterSerailPort(this));
@@ -110,6 +113,8 @@ MainWindow::~MainWindow()
     qInfo()<<QString("Number of spreader work:%1").arg(QString::number(batch));
     workTimtOut->stop();
 
+    delete workTimtOut;
+
     delete ui;
 }
 
@@ -118,6 +123,81 @@ void MainWindow::closeEvent(QCloseEvent *event)
     emit releaseResourcesSignal();
     QWidget::closeEvent(event);
 }
+
+void MainWindow::setting()
+{
+    QSettings set(QDir::toNativeSeparators("Sys.ini"),QSettings::IniFormat);
+    set.setIniCodec("UTF-8");
+
+    set.beginGroup("MQ");
+    MQAddr = set.value("MQAddr","127.0.0.1").toString();
+    MQPort = set.value("MQPort",5672).toInt();
+    MQUser = set.value("MQUser","zby").toString();
+    MQPass = set.value("MQPass","ABCabc123").toString();
+    MQHost = set.value("MQHost","/zby").toString();
+    Channel = set.value("Channel",001).toInt();
+    set.endGroup();
+
+    set.beginGroup("TCP");
+    TCPPort = set.value("TCPPort",12011).toInt();
+    TCPAddr = set.value("TCPAddr","127.0.0.1").toString();
+    set.endGroup();
+
+    set.beginGroup("COM");
+    PortName = set.value("PortName","com2").toString();
+    PortBaud = set.value("PortBaud",19200).toInt();
+    PortData = set.value("PortData",8).toInt();
+    PortStop = set.value("PortStop",1).toInt();
+    PortParity = set.value("PortParity",0).toInt();
+    weight = set.value("weight",500).toInt();
+    beating = set.value("beating",3).toInt();
+    set.endGroup();
+
+    set.beginGroup("Modbus");
+    modbusAddr = set.value("modbusAddr","127.0.0.1").toString();
+    modbusPort = set.value("modbusPort",502).toInt();
+    decID = set.value("decID",1).toInt();
+    startAddr = set.value("startAddr",3399).toInt();
+    mdLen = set.value("mdLen",16).toInt();
+    request = set.value("request",100).toInt();
+    set.endGroup();
+
+
+
+    set.beginGroup("MQ");
+    set.setValue("MQPort",MQPort);
+    set.setValue("MQAddr",MQAddr);
+    set.setValue("MQUser",MQUser);
+    set.setValue("MQPass",MQPass);
+    set.setValue("MQHost",MQHost);
+    set.setValue("Channel",Channel);
+    set.endGroup();
+
+    set.beginGroup("TCP");
+    set.setValue("TCPAddr",TCPAddr);
+    set.setValue("TCPPort",TCPPort);
+    set.endGroup();
+
+    set.beginGroup("COM");
+    set.setValue("PortName",PortName);
+    set.setValue("PortBaud",PortBaud);
+    set.setValue("PortData",PortData);
+    set.setValue("PortStop",PortStop);
+    set.setValue("PortParity",PortParity);
+    set.setValue("weight",weight);
+    set.setValue("beating",beating);
+    set.endGroup();
+
+    set.beginGroup("Modbus");
+    set.setValue("modbusAddr",modbusAddr);
+    set.setValue("modbusPort",modbusPort);
+    set.setValue("decID",decID);
+    set.setValue("startAddr",startAddr);
+    set.setValue("len",mdLen);
+    set.setValue("request",request);
+    set.endGroup();
+}
+
 
 void MainWindow::mqProcess(DataInterchangeInterface *mq)
 {
@@ -197,6 +277,11 @@ void MainWindow::getPoundsSlot(int x, int y, int w)
             ui->spinBox->setValue(batch);
             ui->label_3->setStyleSheet("background-color: rgb(0, 170, 0);color: rgb(255, 255, 255);");
 
+            /*****************************
+            * @brief:闭锁
+            ******************************/
+            emit setLockStateSignal(true);
+
             QtConcurrent::run(this,&MainWindow::statisticalLog,w);
         }
         work=true;
@@ -218,7 +303,33 @@ void MainWindow::getPoundsSlot(int x, int y, int w)
 
     ui->spinBox_2->setValue(x);
     ui->spinBox_3->setValue(y);
-    ui->spinBox_4->setValue(w);    
+    ui->spinBox_4->setValue(w);
+}
+
+void MainWindow::getPlcStatusSlot(QMap<QString, int> msg)
+{
+    ui->spinBox_5->setValue(msg.value("x",0));
+    ui->spinBox_6->setValue(msg.value("y",0));
+    ui->spinBox_7->setValue(msg.value("z",0));
+    if(msg.value("lock",0)){
+         ui->lineEdit_2->setText("闭锁");
+    }
+    else {
+        ui->lineEdit_2->setText("开锁");
+    }
+    if(msg.value("sling",0)){
+        ui->lineEdit->setText("40尺");
+    }
+    else {
+        ui->lineEdit->setText("20尺");
+    }
+
+    if(msg.value("box")){
+        ui->lineEdit_3->setText("着箱");
+    }
+    else {
+        ui->lineEdit_3->clear();
+    }
 }
 
 void MainWindow::workTimeOutSlot()
@@ -227,6 +338,12 @@ void MainWindow::workTimeOutSlot()
     * @brief:做工完成
     ******************************/
     work=false;
+
+    /*****************************
+    * @brief:闭锁
+    ******************************/
+    emit setLockStateSignal(false);
+
     ui->label_3->setStyleSheet("background-color: rgb(170, 0, 0);color: rgb(255, 255, 255);");
 }
 
@@ -240,6 +357,25 @@ void MainWindow::startStatusSlot(bool status)
     }
 }
 
+void MainWindow::modbusStatusSlot(bool status)
+{
+    if(status){
+        ui->label_9->setStyleSheet("background-color: rgb(0, 170, 0);color: rgb(255, 255, 255);");
+    }
+    else {
+        ui->label_9->setStyleSheet("background-color: rgb(170, 0, 0);color: rgb(255, 255, 255);");
+    }
+}
+
+void MainWindow::connectSlaveSlot(bool status)
+{
+    if(status){
+        ui->label_16->setStyleSheet("background-color: rgb(0, 170, 0);color: rgb(255, 255, 255);");
+    }
+    else {
+        ui->label_16->setStyleSheet("background-color: rgb(170, 0, 0);color: rgb(255, 255, 255);");
+    }
+}
 
 void MainWindow::MQ_socketLinkStateSlot(const QString &address,quint16 port,bool state)
 {

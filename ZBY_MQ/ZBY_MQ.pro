@@ -2,9 +2,7 @@ QT       += core gui concurrent
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += c++11
-
-CONFIG += skip_target_version_ext
+CONFIG += c++11 skip_target_version_ext
 
 QMAKE_TARGET_COPYRIGHT = "Copyright 2021 Shen zhen zhong bai yuan"
 
@@ -46,8 +44,15 @@ INCLUDEPATH += $$PWD/../LogController
 DEPENDPATH += $$PWD/../LogController
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../DataInterSerailPort/release/ -lCc1_SerialPort
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../DataInterSerailPort/debug/ -lCc1_SerialPort
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../DataInterSerailPort/debug/ -lCc1_SerialPortd
 else:unix: LIBS += -L$$OUT_PWD/../DataInterSerailPort/ -lCc1_SerialPort
 
 INCLUDEPATH += $$PWD/../DataInterSerailPort
 DEPENDPATH += $$PWD/../DataInterSerailPort
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../DataInterModbus/release/ -lCc1_SerialBus
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../DataInterModbus/debug/ -lCc1_SerialBusd
+else:unix: LIBS += -L$$OUT_PWD/../DataInterModbus/ -lCc1_SerialBus
+
+INCLUDEPATH += $$PWD/../DataInterModbus
+DEPENDPATH += $$PWD/../DataInterModbus

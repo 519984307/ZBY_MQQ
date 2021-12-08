@@ -1,6 +1,8 @@
 ﻿#ifndef DATAINTERSERAILPORT_H
 #define DATAINTERSERAILPORT_H
 
+#include <QObject>
+
 #include "DataInterSerailPort_global.h"
 
 class DATAINTERSERAILPORT_EXPORT DataInterSerailPort:public QObject

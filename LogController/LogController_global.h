@@ -1,4 +1,4 @@
-#ifndef LOGCONTROLLER_GLOBAL_H
+﻿#ifndef LOGCONTROLLER_GLOBAL_H
 #define LOGCONTROLLER_GLOBAL_H
 
 #include <QtCore/qglobal.h>
