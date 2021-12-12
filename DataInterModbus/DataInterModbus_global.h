@@ -8,6 +8,7 @@
 #include <QtSerialBus/QModbusDataUnit>
 #include <QtSerialBus/QModbusReply>
 #include <QTimer>
+#include <QThread>
 #include <QDebug>
 
 #if defined(DATAINTERMODBUS_LIBRARY)

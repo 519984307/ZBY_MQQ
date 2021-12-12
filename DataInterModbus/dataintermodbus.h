@@ -66,7 +66,7 @@ private slots:
     ///
     /// \brief stateChanged modbus链接状态
     ///
-    void stateChanged();
+    void stateChanged(int state);
 
     ///
     /// \brief autoLinkSlot 自动重连
@@ -88,6 +88,8 @@ public slots:
     void getComState(bool status);
 
 private:
+
+    QThread *pTd;
 
     QSharedPointer<QModbusClient> modbusDevice;
 

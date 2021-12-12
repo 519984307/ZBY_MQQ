@@ -9,7 +9,11 @@ DataInterModbus::DataInterModbus(QObject *parent)
 
     modbusDevice = QSharedPointer<QModbusTcpClient>(new QModbusTcpClient(this));
 
-    slave = QSharedPointer<ModbusSlave>(new ModbusSlave(this));
+    pTd=new QThread(this);
+    slave = QSharedPointer<ModbusSlave>(new ModbusSlave(Q_NULLPTR));
+    slave->moveToThread(pTd);
+    pTd->start();
+
     connect(this,&DataInterModbus::setMoubusDataSignal,slave.data(),&ModbusSlave::setMoubusDataSlot);
     connect(slave.data(),&ModbusSlave::connectSlaveSignal,this,&DataInterModbus::connectSlaveSignal);
 
@@ -21,6 +25,7 @@ DataInterModbus::DataInterModbus(QObject *parent)
     autoLintTimer->setSingleShot(true);
     connect(autoLintTimer,&QTimer::timeout,this,&DataInterModbus::autoLinkSlot);
 
+    comState=false;
     slingLock=false;
     port = 502;
     decID = 1;
@@ -37,6 +42,10 @@ DataInterModbus::DataInterModbus(QObject *parent)
 
 DataInterModbus::~DataInterModbus()
 {
+    if(pTd){        
+        pTd->exit();
+    }
+
     buf.clear();
     data.clear();
 
@@ -53,8 +62,7 @@ DataInterModbus::~DataInterModbus()
     if(modbusDevice){
         modbusDevice->disconnectDevice();
     }
-
-//    slave->deleteLater();
+//    slave->deleteLater();    
 }
 
 void DataInterModbus::initModbus(const QString &addr, const qintptr &port, const qintptr &decID, const qintptr &startAddr, const qintptr &mdLen, const qintptr &request)
@@ -86,7 +94,7 @@ void DataInterModbus::initModbus(const QString &addr, const qintptr &port, const
 
     modbusDevice->setConnectionParameter(QModbusDevice::NetworkAddressParameter,addr);
     modbusDevice->setConnectionParameter(QModbusDevice::NetworkPortParameter,port);
-    modbusDevice->setTimeout(1000);
+    modbusDevice->setTimeout(500);
     modbusDevice->setNumberOfRetries(3);
 
     if(!modbusDevice->connectDevice()){
@@ -140,7 +148,6 @@ void DataInterModbus::readReadySlot()
                 ******************************/
                 if(comState){
                     if(slingLock){
-                        //str.replace(14,2,"10");
                         str[15]='1';
                         str[14]='0';
                     }
@@ -174,7 +181,6 @@ void DataInterModbus::readReadySlot()
             }
             if(2==i || 4==i){
                 ba =QString("%1").arg(unit.value(i),4,16,QLatin1Char('0')).toLatin1();
-                //ba.setNum(unit.value(i),16);
                 if(ba.at(0)>'7'){
                     ba="ffff"+ba;
                 }
@@ -230,8 +236,6 @@ void DataInterModbus::readReadySlot()
         }
 
         if(tmp!=buf){
-            //qInfo().noquote()<<QString("[%1] read response data:%2").arg(this->metaObject()->className(),QString(tmp));
-
             data.insert("x",x);
             data.insert("y",y);
             data.insert("z",z);
@@ -257,11 +261,11 @@ void DataInterModbus::readReadySlot()
     reply->deleteLater();
 }
 
-void DataInterModbus::stateChanged()
-{
+void DataInterModbus::stateChanged(int state)
+{    
     bool status=false;
 
-    if(modbusDevice->state()==QModbusDevice::ConnectedState){
+    if(state==QModbusDevice::ConnectedState){
         status=true;
         if(autoLintTimer){
             requestTimer->stop();
@@ -275,7 +279,7 @@ void DataInterModbus::stateChanged()
             requestTimer->stop();
         }
         if(autoLintTimer){
-            autoLintTimer->start(3000);
+            autoLintTimer->start(500);
         }
     }
     emit connectStateSignal(status);

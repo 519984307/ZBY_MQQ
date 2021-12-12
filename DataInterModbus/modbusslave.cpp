@@ -4,7 +4,7 @@ ModbusSlave::ModbusSlave(QObject *parent) : QObject(parent)
 {
     this->setParent(parent);
 
-    modbusDevice = QSharedPointer<QModbusTcpServer> (new QModbusTcpServer(this));
+    modbusDevice = QSharedPointer<QModbusTcpServer> (new QModbusTcpServer());
 }
 
 ModbusSlave::~ModbusSlave()

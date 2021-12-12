@@ -1,20 +1,24 @@
 ﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QtSerialBus/QModbusDevice>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
+    qRegisterMetaType<QtMsgType>("QtMsgType");
     qRegisterMetaType<QMap<QString,int>>("QMap<QString,int>");
+    qRegisterMetaType<QModbusDevice::State>("QModbusDevice::State");
+    qRegisterMetaType<QModbusDataUnit::RegisterType>("QModbusDataUnit::RegisterType");
 
     /*****************************
     * @brief:加载参数
     ******************************/
     setting();
 
-    qRegisterMetaType<QtMsgType>("QtMsgType");
     pLog=QSharedPointer<LogController>(new LogController("ZBY_MQ",this));
     connect(pLog.data(),SIGNAL(signal_newLogText(QtMsgType,QDateTime,QString)),this,SLOT(slot_newLogText(QtMsgType,QDateTime,QString)));
 
@@ -68,16 +72,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(pModbus.data(),&DataInterModbus::connectStateSignal,this,&MainWindow::modbusStatusSlot);
     connect(pModbus.data(),&DataInterModbus::setPlcStatusSginal,this,&MainWindow::getPlcStatusSlot);
     connect(pModbus.data(),&DataInterModbus::connectSlaveSignal,this,&MainWindow::connectSlaveSlot);
-    /*****************************
-    * @brief:设置开闭锁状态
-    ******************************/
-    connect(this,&MainWindow::setComState,pModbus.data(),&DataInterModbus::getComState);
-    /*****************************
-    * @brief:设置串口状态
-    ******************************/
-    connect(this,&MainWindow::setLockStateSignal,pModbus.data(),&DataInterModbus::getLockStateSlot);
-
-    pModbus->initModbus(modbusAddr,modbusPort,decID,startAddr,mdLen,request);
 
     /****************************
     * @brief:初始化参口
@@ -85,7 +79,18 @@ MainWindow::MainWindow(QWidget *parent)
     pPort=QSharedPointer<DataInterSerailPort>(new DataInterSerailPort(this));
     connect(pPort.data(),&DataInterSerailPort::getPoundsSignal,this,&MainWindow::getPoundsSlot);
     connect(pPort.data(),&DataInterSerailPort::startStatusSignal,this,&MainWindow::startStatusSlot);
+
+    /*****************************
+    * @brief:设置串口状态
+    ******************************/
+    connect(pPort.data(),&DataInterSerailPort::startStatusSignal,pModbus.data(),&DataInterModbus::getComState);
+    /*****************************
+    * @brief:设置开闭锁状态
+    ******************************/
+    connect(this,&MainWindow::setLockStateSignal,pModbus.data(),&DataInterModbus::getLockStateSlot);
+
     pPort->startSlave(PortName,PortBaud,PortData,PortStop,PortParity,0);
+    pModbus->initModbus(modbusAddr,modbusPort,decID,startAddr,mdLen,request);
 
     /*****************************
     * @brief:初始化统计数据

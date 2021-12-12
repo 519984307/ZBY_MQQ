@@ -252,12 +252,6 @@ signals:
     ///
     void setLockStateSignal(bool state);
 
-    ///
-    /// \brief setComState 设置串口状态到modbus，串口失败就使用modbus开闭锁信息
-    /// \param status
-    ///
-    void setComState(bool status);
-
 private slots:
 
     ///
