@@ -12,7 +12,13 @@ MainWindow::MainWindow(QWidget *parent)
     qRegisterMetaType<QtMsgType>("QtMsgType");
     qRegisterMetaType<QMap<QString,int>>("QMap<QString,int>");
     qRegisterMetaType<QModbusDevice::State>("QModbusDevice::State");
+    qRegisterMetaType<QModbusDevice::Error>("QModbusDevice::Error");
     qRegisterMetaType<QModbusDataUnit::RegisterType>("QModbusDataUnit::RegisterType");
+
+    /*****************************
+    * @brief:默认磅重为串口
+    ******************************/
+    weightModel=0;
 
     /*****************************
     * @brief:加载参数
@@ -53,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
     ******************************/
     work=false;
     batch=0;
-    dd="";
+    dd="";   
 
     workTimtOut=new QTimer(this);
     workTimtOut->setSingleShot(true);
@@ -74,22 +80,37 @@ MainWindow::MainWindow(QWidget *parent)
     connect(pModbus.data(),&DataInterModbus::connectSlaveSignal,this,&MainWindow::connectSlaveSlot);
 
     /****************************
-    * @brief:初始化参口
+    * @brief:初始化磅重
     ******************************/
-    pPort=QSharedPointer<DataInterSerailPort>(new DataInterSerailPort(this));
-    connect(pPort.data(),&DataInterSerailPort::getPoundsSignal,this,&MainWindow::getPoundsSlot);
-    connect(pPort.data(),&DataInterSerailPort::startStatusSignal,this,&MainWindow::startStatusSlot);
+    if(0 == weightModel){
+        pPort=QSharedPointer<DataInterSerailPort>(new DataInterSerailPort(this));
+        connect(pPort.data(),&DataInterSerailPort::getPoundsSignal,this,&MainWindow::getPoundsSlot);
+        connect(pPort.data(),&DataInterSerailPort::startStatusSignal,this,&MainWindow::startStatusSlot);
+        /*****************************
+        * @brief:设置串口状态
+        ******************************/
+        connect(pPort.data(),&DataInterSerailPort::startStatusSignal,pModbus.data(),&DataInterModbus::getComState);
+    }else if (1 == weightModel) {
+        pWeiModbus=QSharedPointer<WeightModbus>(new WeightModbus(this));
+        connect(pWeiModbus.data(),&WeightModbus::setPoundsSignal,this,&MainWindow::getPoundsSlot);
+        connect(pWeiModbus.data(),&WeightModbus::connectStateSignal,this,&MainWindow::startStatusSlot);
+        /*****************************
+        * @brief:设置串口状态
+        ******************************/
+        connect(pWeiModbus.data(),&WeightModbus::connectStateSignal,pModbus.data(),&DataInterModbus::getComState);
+    }
 
-    /*****************************
-    * @brief:设置串口状态
-    ******************************/
-    connect(pPort.data(),&DataInterSerailPort::startStatusSignal,pModbus.data(),&DataInterModbus::getComState);
     /*****************************
     * @brief:设置开闭锁状态
     ******************************/
     connect(this,&MainWindow::setLockStateSignal,pModbus.data(),&DataInterModbus::getLockStateSlot);
 
-    pPort->startSlave(PortName,PortBaud,PortData,PortStop,PortParity,0);
+    if(0 == weightModel){
+        pPort->startSlave(PortName,PortBaud,PortData,PortStop,PortParity,0);
+    }else if (1 == weightModel) {
+        pWeiModbus->initModbus(modbusAddr_weight,modbusPort_weight,decID_weight,startAddr_weight,mdLen_weight,request_weight);
+    }
+
     pModbus->initModbus(modbusAddr,modbusPort,decID,startAddr,mdLen,request);
 
     /*****************************
@@ -115,6 +136,18 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    if(pModbus){
+        pModbus->disconnect();
+    }
+
+    if(pWeiModbus){
+        pWeiModbus->disconnect();
+    }
+
+    if(pPort){
+        pPort->disconnect();
+    }
+
     qInfo()<<QString("Number of spreader work:%1").arg(QString::number(batch));
     workTimtOut->stop();
 
@@ -156,6 +189,7 @@ void MainWindow::setting()
     PortParity = set.value("PortParity",0).toInt();
     weight = set.value("weight",500).toInt();
     beating = set.value("beating",3).toInt();
+    weightModel = set.value("weightModel",0).toInt();
     set.endGroup();
 
     set.beginGroup("Modbus");
@@ -167,6 +201,14 @@ void MainWindow::setting()
     request = set.value("request",100).toInt();
     set.endGroup();
 
+    set.beginGroup("Modbus_weight");
+    modbusAddr_weight = set.value("modbusAddr_weight","127.0.0.1").toString();
+    modbusPort_weight = set.value("modbusPort_weight",502).toInt();
+    decID_weight = set.value("decID_weight",1).toInt();
+    startAddr_weight = set.value("startAddr_weight",3399).toInt();
+    mdLen_weight = set.value("mdLen_weight",16).toInt();
+    request_weight = set.value("request_weight",100).toInt();
+    set.endGroup();
 
 
     set.beginGroup("MQ");
@@ -191,6 +233,7 @@ void MainWindow::setting()
     set.setValue("PortParity",PortParity);
     set.setValue("weight",weight);
     set.setValue("beating",beating);
+    set.value("weightModel",weightModel);
     set.endGroup();
 
     set.beginGroup("Modbus");
@@ -198,8 +241,17 @@ void MainWindow::setting()
     set.setValue("modbusPort",modbusPort);
     set.setValue("decID",decID);
     set.setValue("startAddr",startAddr);
-    set.setValue("len",mdLen);
+    set.setValue("mdLen",mdLen);
     set.setValue("request",request);
+    set.endGroup();
+
+    set.beginGroup("Modbus_weight");
+    set.setValue("modbusAddr_weight",modbusAddr_weight);
+    set.setValue("modbusPort_weight",modbusPort_weight);
+    set.setValue("decID_weight",decID_weight);
+    set.setValue("startAddr_weight",startAddr_weight);
+    set.setValue("mdLen_weight",mdLen_weight);
+    set.setValue("request_weight",request_weight);
     set.endGroup();
 }
 

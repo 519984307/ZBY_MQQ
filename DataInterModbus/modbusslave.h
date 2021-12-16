@@ -20,7 +20,7 @@ public:
 
 private:
 
-    QSharedPointer<QModbusServer> modbusDevice;
+    QModbusServer* modbusDevice;
 
     int decID;
     int startAddr;

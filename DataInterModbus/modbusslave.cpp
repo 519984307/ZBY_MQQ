@@ -4,7 +4,7 @@ ModbusSlave::ModbusSlave(QObject *parent) : QObject(parent)
 {
     this->setParent(parent);
 
-    modbusDevice = QSharedPointer<QModbusTcpServer> (new QModbusTcpServer());
+    modbusDevice = new QModbusTcpServer();
 }
 
 ModbusSlave::~ModbusSlave()
@@ -12,6 +12,9 @@ ModbusSlave::~ModbusSlave()
     if(modbusDevice){
         modbusDevice->disconnectDevice();
     }
+
+    delete  modbusDevice;
+    modbusDevice=nullptr;
 }
 
 void ModbusSlave::initModbus(int startAddr, int dataLen, int devID)
@@ -39,9 +42,9 @@ void ModbusSlave::initModbus(int startAddr, int dataLen, int devID)
         /*****************************
         * @brief:设备链接状态
         ******************************/
-        connect(modbusDevice.data(),&QModbusServer::stateChanged,this,&ModbusSlave::stateChangedSlot);
-        connect(modbusDevice.data(),&QModbusServer::errorOccurred,this,&ModbusSlave::errOccurredSlot);
-        connect(modbusDevice.data(),&QModbusServer::dataWritten,this,&ModbusSlave::updateDataSlot);
+        connect(modbusDevice,&QModbusServer::stateChanged,this,&ModbusSlave::stateChangedSlot);
+        connect(modbusDevice,&QModbusServer::errorOccurred,this,&ModbusSlave::errOccurredSlot);
+        connect(modbusDevice,&QModbusServer::dataWritten,this,&ModbusSlave::updateDataSlot);
 
         modbusDevice->connectDevice();
     }

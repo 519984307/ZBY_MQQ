@@ -91,9 +91,9 @@ private:
 
     QThread *pTd;
 
-    QSharedPointer<QModbusClient> modbusDevice;
+    QModbusClient* modbusDevice;
 
-    QSharedPointer<ModbusSlave> slave;
+    ModbusSlave* slave;
 
     ///
     /// \brief requestTimer 定时检索数据

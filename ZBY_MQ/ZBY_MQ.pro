@@ -56,3 +56,10 @@ else:unix: LIBS += -L$$OUT_PWD/../DataInterModbus/ -lCc1_SerialBus
 
 INCLUDEPATH += $$PWD/../DataInterModbus
 DEPENDPATH += $$PWD/../DataInterModbus
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../WeightModbus/release/ -lCc1_WeightBus
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../WeightModbus/debug/ -lCc1_WeightBusd
+else:unix: LIBS += -L$$OUT_PWD/../WeightModbus/ -lCc1_WeightBus
+
+INCLUDEPATH += $$PWD/../WeightModbus
+DEPENDPATH += $$PWD/../WeightModbus

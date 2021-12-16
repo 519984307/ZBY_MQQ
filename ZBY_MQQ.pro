@@ -16,5 +16,6 @@ TEMPLATE = subdirs
     DataInterRabbitMQ \
     DataInterchange \
         LogController/LogController.pro \
+    WeightModbus \
         ZBY_MQ/ZBY_MQ.pro
 

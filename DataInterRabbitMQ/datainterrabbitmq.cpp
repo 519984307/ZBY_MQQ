@@ -1,4 +1,5 @@
-﻿#include "datainterrabbitmq.h"
+﻿
+#include "datainterrabbitmq.h"
 
 DataInterRabbitMQ::DataInterRabbitMQ(QObject *parent)
 {

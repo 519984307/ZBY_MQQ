@@ -19,6 +19,7 @@
 #include "../LogController/logcontroller.h"
 #include "../DataInterSerailPort/datainterserailport.h"
 #include "../DataInterModbus/dataintermodbus.h"
+#include "../WeightModbus/weightmodbus.h"
 #include "datainterchangeinterface.h"
 
 QT_BEGIN_NAMESPACE
@@ -96,6 +97,11 @@ private:
     QSharedPointer<DataInterModbus> pModbus;
 
     ///
+    /// \brief pModbus 磅重MODBUS数据处理类
+    ///
+    QSharedPointer<WeightModbus> pWeiModbus;
+
+    ///
     /// \brief dd 写入时间戳
     ///
     QString dd;
@@ -104,6 +110,11 @@ private:
     /// \brief statistical 统计文件
     ///
     QFile statistical;
+
+    ///
+    /// \brief weightModel 磅重模式，0：com,1:modbus
+    ///
+    int weightModel;
 
     //MQ
 
@@ -231,6 +242,38 @@ private:
     /// \brief request 轮询时间
     ///
     int request;
+
+    //Weight modbus
+
+    ///
+    /// \brief modbusAddr_weight 地址
+    ///
+    QString modbusAddr_weight;
+
+    ///
+    /// \brief modbusPort_weight 端口
+    ///
+    int modbusPort_weight;
+
+    ///
+    /// \brief decID_weight 设备地址
+    ///
+    int decID_weight;
+
+    ///
+    /// \brief startAddr_weight 数据起始地址
+    ///
+    int startAddr_weight;
+
+    ///
+    /// \brief mdLen_weight 数据长度
+    ///
+    int mdLen_weight;
+
+    ///
+    /// \brief request_weight 轮询时间
+    ///
+    int request_weight;
 
 signals:
 

@@ -7,15 +7,15 @@ DataInterModbus::DataInterModbus(QObject *parent)
 {
     this->setParent(parent);
 
-    modbusDevice = QSharedPointer<QModbusTcpClient>(new QModbusTcpClient(this));
+    modbusDevice = new QModbusTcpClient(this);
 
     pTd=new QThread(this);
-    slave = QSharedPointer<ModbusSlave>(new ModbusSlave(Q_NULLPTR));
+    slave = new ModbusSlave(Q_NULLPTR);
     slave->moveToThread(pTd);
     pTd->start();
 
-    connect(this,&DataInterModbus::setMoubusDataSignal,slave.data(),&ModbusSlave::setMoubusDataSlot);
-    connect(slave.data(),&ModbusSlave::connectSlaveSignal,this,&DataInterModbus::connectSlaveSignal);
+    connect(this,&DataInterModbus::setMoubusDataSignal,slave,&ModbusSlave::setMoubusDataSlot);
+    connect(slave,&ModbusSlave::connectSlaveSignal,this,&DataInterModbus::connectSlaveSignal);
 
     requestTimer = new QTimer(this);
     requestTimer->setSingleShot(false);
@@ -61,8 +61,12 @@ DataInterModbus::~DataInterModbus()
 
     if(modbusDevice){
         modbusDevice->disconnectDevice();
-    }
-//    slave->deleteLater();    
+    }    
+    delete modbusDevice;
+    modbusDevice=nullptr;
+
+    delete  slave;
+    slave=nullptr;
 }
 
 void DataInterModbus::initModbus(const QString &addr, const qintptr &port, const qintptr &decID, const qintptr &startAddr, const qintptr &mdLen, const qintptr &request)
@@ -90,12 +94,12 @@ void DataInterModbus::initModbus(const QString &addr, const qintptr &port, const
     /*****************************
     * @brief:modbus链接状态
     ******************************/
-    connect(modbusDevice.data(),&QModbusDevice::stateChanged,this,&DataInterModbus::stateChanged);
+    connect(modbusDevice,&QModbusClient::stateChanged,this,&DataInterModbus::stateChanged);
 
     modbusDevice->setConnectionParameter(QModbusDevice::NetworkAddressParameter,addr);
     modbusDevice->setConnectionParameter(QModbusDevice::NetworkPortParameter,port);
     modbusDevice->setTimeout(500);
-    modbusDevice->setNumberOfRetries(3);
+    modbusDevice->setNumberOfRetries(1);
 
     if(!modbusDevice->connectDevice()){
         qCritical().noquote()<<QString("[%1] %2:connected to addr failed <errCode=%3>").arg(this->metaObject()->className(),modbusDevice->errorString());
@@ -109,6 +113,10 @@ void DataInterModbus::initModbus(const QString &addr, const qintptr &port, const
 
 void DataInterModbus::requestSlot()
 {
+    if(!modbusDevice){
+        return;
+    }
+
     if(auto *reply=modbusDevice->sendReadRequest(QModbusDataUnit(QModbusDataUnit::HoldingRegisters,startAddr,mdLen),decID)){
         if(!reply->isFinished()){
             connect(reply,&QModbusReply::finished,this,&DataInterModbus::readReadySlot);
@@ -254,8 +262,11 @@ void DataInterModbus::readReadySlot()
         data.clear();
         update.clear();
     }
+    else if (reply->error() == QModbusDevice::ProtocolError) {
+        qWarning().noquote()<<QString("[%1] Read response error: %2 (Mobus exception: 0x%3)").arg(this->metaObject()->className(),reply->errorString()).arg(reply->rawResult().exceptionCode(), -1, 16);
+    }
     else {
-        qWarning().noquote()<<QString("[%1] Read response error:<errCode=%2>").arg(this->metaObject()->className(),QString::number(modbusDevice->error()));
+        qWarning().noquote()<<QString("[%1] Read response error: %2 (code: 0x%3)").arg(this->metaObject()->className(),reply->errorString()).arg(reply->error(), -1, 16);
     }
 
     reply->deleteLater();
@@ -268,14 +279,14 @@ void DataInterModbus::stateChanged(int state)
     if(state==QModbusDevice::ConnectedState){
         status=true;
         if(autoLintTimer){
-            requestTimer->stop();
+            autoLintTimer->stop();
         }
         if(requestTimer){
             requestTimer->start(request);
         }
     }
     else {
-        if(autoLintTimer){
+        if(requestTimer){
             requestTimer->stop();
         }
         if(autoLintTimer){
