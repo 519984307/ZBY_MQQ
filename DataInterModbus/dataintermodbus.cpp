@@ -144,6 +144,8 @@ void DataInterModbus::readReadySlot()
         QByteArray tmp;
         QString str;
 
+        bool iso=true;
+
         for (uint i = 0; i < unit.valueCount(); i++) {
             if(0==i){
                 /*****************************
@@ -175,6 +177,17 @@ void DataInterModbus::readReadySlot()
                 if('1' == str.at(1)){
                     lock=0;
                 }
+
+                /*****************************
+                * @brief:取不到箱型数据，默认给出40尺
+                ******************************/
+                if('0' == str.at(4)){
+                    iso=false;
+                }
+                if('0' == str.at(5) && !iso){
+                    str[5]='1';
+                }
+
                 /*****************************
                 * @brief:着箱
                 ******************************/
@@ -192,7 +205,7 @@ void DataInterModbus::readReadySlot()
                 if(ba.at(0)>'7'){
                     ba="ffff"+ba;
                 }
-            }
+            }          
 
             if(2==i){
                 /*****************************

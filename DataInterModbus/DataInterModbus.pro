@@ -8,7 +8,7 @@ DEFINES += DATAINTERMODBUS_LIBRARY
 CONFIG += c++11
 
 CONFIG += skip_target_version_ext
-VERSION = 1.0.0.4
+VERSION = 1.0.0.5
 QMAKE_TARGET_COPYRIGHT = "Copyright 2020 Shen zhen zhong bai yuan"
 
 TARGET = SerialBus
