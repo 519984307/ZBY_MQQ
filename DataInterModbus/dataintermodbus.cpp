@@ -69,9 +69,11 @@ DataInterModbus::~DataInterModbus()
     slave=nullptr;
 }
 
-void DataInterModbus::initModbus(const QString &addr, const qintptr &port, const qintptr &decID, const qintptr &startAddr, const qintptr &mdLen, const qintptr &request)
+void DataInterModbus::initModbus(const QString &addr, const qintptr &port, const qintptr &decID, const qintptr &startAddr, const qintptr &mdLen, const qintptr &request, const qintptr &iso)
 {
     address = addr;
+
+    this->iso = iso;
     this->port = port ;
     this->decID = decID ;
     this->startAddr = startAddr;
@@ -144,7 +146,7 @@ void DataInterModbus::readReadySlot()
         QByteArray tmp;
         QString str;
 
-        bool iso=true;
+        bool isoStatus=true;
 
         for (uint i = 0; i < unit.valueCount(); i++) {
             if(0==i){
@@ -182,10 +184,15 @@ void DataInterModbus::readReadySlot()
                 * @brief:取不到箱型数据，默认给出40尺
                 ******************************/
                 if('0' == str.at(4)){
-                    iso=false;
+                    isoStatus=false;
                 }
-                if('0' == str.at(5) && !iso){
-                    str[5]='1';
+                if('0' == str.at(5) && !isoStatus){
+                    if(iso){
+                        str[5]='1';
+                    }
+                    else {
+                        str[4]='1';
+                    }
                 }
 
                 /*****************************

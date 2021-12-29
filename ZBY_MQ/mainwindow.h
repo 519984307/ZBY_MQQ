@@ -243,6 +243,11 @@ private:
     ///
     int request;
 
+    ///
+    /// \brief iso 默认箱型
+    ///
+    int iso;
+
     //Weight modbus
 
     ///

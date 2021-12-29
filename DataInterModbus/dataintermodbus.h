@@ -17,7 +17,7 @@ public:
     /// \param addr
     /// \param port
     ///
-    void initModbus(const QString &addr,const qintptr &port,  const qintptr &decID,  const qintptr &startAddr,  const qintptr &mdLen,  const qintptr &request);
+    void initModbus(const QString &addr,const qintptr &port,  const qintptr &decID,  const qintptr &startAddr,  const qintptr &mdLen,  const qintptr &request,const qintptr &iso);
 
 signals:
 
@@ -127,6 +127,11 @@ private:
     int lock;
     int sling;
     int box;
+
+    /*****************************
+    * @brief:箱型状态
+    ******************************/
+    bool iso;
 
     ///
     /// \brief slingLock 磅重开闭锁

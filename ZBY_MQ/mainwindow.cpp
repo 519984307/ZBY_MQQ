@@ -111,7 +111,7 @@ MainWindow::MainWindow(QWidget *parent)
         pWeiModbus->initModbus(modbusAddr_weight,modbusPort_weight,decID_weight,startAddr_weight,mdLen_weight,request_weight);
     }
 
-    pModbus->initModbus(modbusAddr,modbusPort,decID,startAddr,mdLen,request);
+    pModbus->initModbus(modbusAddr,modbusPort,decID,startAddr,mdLen,request,iso);
 
     /*****************************
     * @brief:初始化统计数据
@@ -199,6 +199,7 @@ void MainWindow::setting()
     startAddr = set.value("startAddr",3399).toInt();
     mdLen = set.value("mdLen",16).toInt();
     request = set.value("request",100).toInt();
+    iso = set.value("iso",0).toInt();
     set.endGroup();
 
     set.beginGroup("Modbus_weight");
@@ -243,6 +244,7 @@ void MainWindow::setting()
     set.setValue("startAddr",startAddr);
     set.setValue("mdLen",mdLen);
     set.setValue("request",request);
+    set.setValue("iso",iso);
     set.endGroup();
 
     set.beginGroup("Modbus_weight");
