@@ -77,6 +77,14 @@ public slots:
     virtual void  InitializationParameterSlot(const QString& address,const quint16& port,const int& serviceType,const bool& heartBeat, const int& serviceMode,const int& shortLink,const int& newline)=0;
 
     ///
+    /// \brief getWeightToDataSlot 写入重量数据
+    /// \param x
+    /// \param y
+    /// \param w
+    ///
+    virtual void getWeightToDataSlot(int x, int y ,int w)=0;
+
+    ///
     /// \brief toSendDataSlot 发送数据
     /// \param data 数据体
     ///
@@ -89,7 +97,7 @@ public slots:
 
 };
 
-#define DataInterchangeInterfaceIID "ZBY.ContainerServer.DataInterchangeInterface/1.2.4.4"
+#define DataInterchangeInterfaceIID "ZBY.ContainerServer.DataInterchangeInterface/1.2.5.4"
 Q_DECLARE_INTERFACE(DataInterchangeInterface,DataInterchangeInterfaceIID);
 
 #endif // DATAINTERCHANGEINTERFACE_H

@@ -70,14 +70,18 @@ void DataInterRabbitMQ::InitializationParameterSlot(const QString &address, cons
     properties[QAmqpMessage::DeliveryMode] = "2";
 
     isConnected=false;
+    x=0;y=0;w=0;
 }
 
 void DataInterRabbitMQ::toSendDataSlot(int channel_number, const QString &data)
 {
+    QString DAT=data;
+    DAT= analyticalData(data);
+
     this->channel_number=channel_number;
     if(!isConnected){
         isConnected=true;
-        sendData=data;
+        sendData=DAT;
         m_client.connectToHost();
     }
     else {
@@ -91,6 +95,52 @@ void DataInterRabbitMQ::releaseResourcesSlot()
     m_client.abort();
 
     qDebug().noquote()<<QString("DataInterRabbitMQ::releaseResourcesSlot");
+}
+
+void DataInterRabbitMQ::getWeightToDataSlot(int x, int y, int w)
+{
+    this->x=x;
+    this->y=y;
+    this->w=w;
+    qDebug()<<"write weight:"<<w;
+}
+
+QString DataInterRabbitMQ::analyticalData(const QString &data)
+{
+    QByteArray arr=data.toLatin1();
+    QJsonParseError jsonErr;
+    QJsonDocument jsonDoc=QJsonDocument::fromJson(arr,&jsonErr);
+
+    QJsonArray array;
+
+    if(!jsonDoc.isNull() && jsonErr.error==QJsonParseError::NoError){
+        if(jsonDoc.isObject()){
+            QJsonObject obj=jsonDoc.object();
+            if(obj.contains(QString("type"))){
+                int type = obj.value(QString("type")).toInt();
+                if(5 != type){
+                    return data;
+                }
+
+
+                QJsonObject obj1;
+                obj1.insert("type",5);
+                array.append(obj1);
+            }
+            if(obj.contains(QString("msg"))){
+                QJsonObject obj1=obj.value(QString("msg")).toObject();
+                obj1["pz"]=x;
+                obj1["pzai"]=y;
+                obj1["weight"]=w;
+
+                array.insert(0,obj1);
+            }
+        }
+    }
+
+    QJsonDocument doc;
+    doc.setArray(array);
+    return QString::fromUtf8(doc.toJson(QJsonDocument::Compact).constData());
 }
 
 void DataInterRabbitMQ::clientDisconnected()

@@ -59,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
     ******************************/
     work=false;
     batch=0;
-    dd="";   
+    dd="";
 
     workTimtOut=new QTimer(this);
     workTimtOut->setSingleShot(true);
@@ -209,6 +209,7 @@ void MainWindow::setting()
     startAddr_weight = set.value("startAddr_weight",3399).toInt();
     mdLen_weight = set.value("mdLen_weight",16).toInt();
     request_weight = set.value("request_weight",100).toInt();
+    validTime_weight = set.value("validTime_weight",5).toInt();
     set.endGroup();
 
 
@@ -254,6 +255,7 @@ void MainWindow::setting()
     set.setValue("startAddr_weight",startAddr_weight);
     set.setValue("mdLen_weight",mdLen_weight);
     set.setValue("request_weight",request_weight);
+    set.setValue("validTime_weight",validTime_weight);
     set.endGroup();
 }
 
@@ -266,6 +268,8 @@ void MainWindow::mqProcess(DataInterchangeInterface *mq)
     connect(this,&MainWindow::toSendDataSignal,mq,&DataInterchangeInterface::toSendDataSlot);
     /* 绑定MQ数量到服务界面 */
     connect(mq,&DataInterchangeInterface::linkStateSingal,this,&MainWindow::MQ_socketLinkStateSlot);
+    /* 重量写入数据 */
+    connect(this,&MainWindow::setWeightToSignal,mq,&DataInterchangeInterface::getWeightToDataSlot);
     /* 释放资源 */
     connect(this,&MainWindow::releaseResourcesSignal,mq,&DataInterchangeInterface::releaseResourcesSlot);
 }
@@ -327,6 +331,10 @@ void MainWindow::socketReadDataSlot(int channel_number, const QString &result)
 
 void MainWindow::getPoundsSlot(int x, int y, int w)
 {
+    this->x=x;
+    this->y=y;
+    this->w=w;
+
     /*****************************
     * @brief:开始做工
     ******************************/
@@ -335,6 +343,11 @@ void MainWindow::getPoundsSlot(int x, int y, int w)
             batch++;
             ui->spinBox->setValue(batch);
             ui->label_3->setStyleSheet("background-color: rgb(0, 170, 0);color: rgb(255, 255, 255);");
+
+            /*****************************
+            * @brief:保持重量写入数据
+            ******************************/
+            QTimer::singleShot(validTime_weight*1000,this,SLOT(Weight_validTimeSlot()));
 
             /*****************************
             * @brief:闭锁
@@ -402,6 +415,11 @@ void MainWindow::workTimeOutSlot()
     * @brief:闭锁
     ******************************/
     emit setLockStateSignal(false);
+
+    /*****************************
+    * @brief:保持重量写入数据
+    ******************************/
+    QTimer::singleShot(100,this,SLOT(Weight_validTimeSlot()));
 
     ui->label_3->setStyleSheet("background-color: rgb(170, 0, 0);color: rgb(255, 255, 255);");
 }
@@ -502,4 +520,9 @@ void MainWindow::on_checkBox_stateChanged(int arg1)
         ui->groupBox->setVisible(true);
         this->setFixedSize(1142,500);
     }
+}
+
+void MainWindow::Weight_validTimeSlot()
+{
+    emit setWeightToSignal(x,y,w);
 }

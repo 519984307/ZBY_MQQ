@@ -41,12 +41,27 @@ public:
     /// \brief toSendDataSlot 发送数据
     /// \param data 数据体
     ///
-    void toSendDataSlot(int channel_number, const QString &data)Q_DECL_OVERRIDE;
+    void toSendDataSlot(int channel_number,const QString &data)Q_DECL_OVERRIDE;
 
     ///
     /// \brief releaseResourcesSlot 释放资源
     ///
     void releaseResourcesSlot()Q_DECL_OVERRIDE;
+
+    ///
+    /// \brief setWeightToMQSlot 写入重量数据到
+    /// \param x
+    /// \param y
+    /// \param w
+    ///
+    void getWeightToDataSlot(int x, int y ,int w)Q_DECL_OVERRIDE;
+
+private:
+
+    ///
+    /// \brief analyticalData
+    ///
+    QString analyticalData(const QString &data);
 
 private:
 
@@ -59,6 +74,21 @@ private:
 
     bool isConnected;
     QString tmpMsg;
+
+    ///
+    /// \brief x x轴偏心
+    ///
+    int x;
+
+    ///
+    /// \brief y y轴偏载
+    ///
+    int y;
+
+    ///
+    /// \brief w w重量
+    ///
+    int w;
 
 private slots:
 

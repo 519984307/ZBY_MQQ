@@ -72,6 +72,21 @@ private:
     Ui::MainWindow *ui;
 
     ///
+    /// \brief x x轴偏载
+    ///
+    int x;
+
+    ///
+    /// \brief y y轴偏心
+    ///
+    int y;
+
+    ///
+    /// \brief w 重量
+    ///
+    int w;
+
+    ///
     /// \brief mq MQ接口处理类
     ///
     DataInterchangeInterface* mq;
@@ -192,7 +207,7 @@ private:
     int weight;
 
     ///
-    /// \brief beating 过滤调动时间
+    /// \brief beating 过滤波动时间
     ///
     int beating;
 
@@ -244,7 +259,7 @@ private:
     int request;
 
     ///
-    /// \brief iso 默认箱型
+    /// \brief iso 没有检测到箱型,指定默认箱型
     ///
     int iso;
 
@@ -279,6 +294,11 @@ private:
     /// \brief request_weight 轮询时间
     ///
     int request_weight;
+    
+    ///
+    /// \brief validTime_weight 重量有效时间
+    ///
+    int validTime_weight;
 
 signals:
 
@@ -292,13 +312,21 @@ signals:
     /// \param channel_number
     /// \param data
     ///
-    void toSendDataSignal(int channel_number, const QString &data);
+    void toSendDataSignal(int channel_number,const QString &data);
 
     ///
     /// \brief setLockStateSignal 设置开闭锁状态
     /// \param state
     ///
     void setLockStateSignal(bool state);
+
+    ///
+    /// \brief setWeightToSignal 写入重量数据到MQ
+    /// \param x
+    /// \param y
+    /// \param w
+    ///
+    void setWeightToSignal(int x, int y ,int w);
 
 private slots:
 
@@ -384,5 +412,10 @@ private slots:
     /// \param arg1
     ///
     void on_checkBox_stateChanged(int arg1);
+
+    ///
+    /// \brief Weight_validTimeSlot
+    ///
+    void Weight_validTimeSlot();
 };
 #endif // MAINWINDOW_H

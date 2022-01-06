@@ -154,6 +154,14 @@ public:
     ///
     void releaseResourcesSlot()Q_DECL_OVERRIDE;
 
+    ///
+    /// \brief getWeightToDataSlot 写入重量数据
+    /// \param x
+    /// \param y
+    /// \param w
+    ///
+    void getWeightToDataSlot(int x, int y ,int w)Q_DECL_OVERRIDE;
+
 signals:
 
     ///

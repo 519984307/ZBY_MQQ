@@ -6,6 +6,11 @@
 #include <QScopedPointer>
 #include <QPointer>
 #include <QDebug>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonParseError>
+#include <QSharedPointer>
+#include <QJsonArray>
 
 #if defined(DATAINTERRABBITMQ_LIBRARY)
 #  define DATAINTERRABBITMQ_EXPORT Q_DECL_EXPORT
