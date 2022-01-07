@@ -300,6 +300,11 @@ private:
     ///
     int validTime_weight;
 
+    ///
+    /// \brief set_weight 是否设置重量
+    ///
+    int set_weight;
+
 signals:
 
     void  MQ_InitializationParameterSignal(const QString& address,const quint16& port,const int& serviceType,const bool& heartBeat, const int& serviceMode,const int& shortLink,const int& newline);

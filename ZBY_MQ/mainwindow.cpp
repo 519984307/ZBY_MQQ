@@ -210,6 +210,7 @@ void MainWindow::setting()
     mdLen_weight = set.value("mdLen_weight",16).toInt();
     request_weight = set.value("request_weight",100).toInt();
     validTime_weight = set.value("validTime_weight",5).toInt();
+    set_weight = set.value("set_weight",1).toInt();
     set.endGroup();
 
 
@@ -256,6 +257,7 @@ void MainWindow::setting()
     set.setValue("mdLen_weight",mdLen_weight);
     set.setValue("request_weight",request_weight);
     set.setValue("validTime_weight",validTime_weight);
+    set.setValue("set_weight",set_weight);
     set.endGroup();
 }
 
@@ -419,7 +421,7 @@ void MainWindow::workTimeOutSlot()
     /*****************************
     * @brief:保持重量写入数据
     ******************************/
-    QTimer::singleShot(100,this,SLOT(Weight_validTimeSlot()));
+    QTimer::singleShot(validTime_weight*1000,this,SLOT(Weight_validTimeSlot()));
 
     ui->label_3->setStyleSheet("background-color: rgb(170, 0, 0);color: rgb(255, 255, 255);");
 }
