@@ -111,7 +111,7 @@ QString DataInterRabbitMQ::analyticalData(const QString &data)
     QJsonParseError jsonErr;
     QJsonDocument jsonDoc=QJsonDocument::fromJson(arr,&jsonErr);
 
-    QJsonArray array;
+    QJsonObject obj_Msg;
 
     if(!jsonDoc.isNull() && jsonErr.error==QJsonParseError::NoError){
         if(jsonDoc.isObject()){
@@ -121,11 +121,6 @@ QString DataInterRabbitMQ::analyticalData(const QString &data)
                 if(5 != type){
                     return data;
                 }
-
-
-                QJsonObject obj1;
-                obj1.insert("type",5);
-                array.append(obj1);
             }
             if(obj.contains(QString("msg"))){
                 QJsonObject obj1=obj.value(QString("msg")).toObject();
@@ -133,14 +128,16 @@ QString DataInterRabbitMQ::analyticalData(const QString &data)
                 obj1["pzai"]=y;
                 obj1["weight"]=w;
 
-                array.insert(0,obj1);
+
+                obj_Msg.insert("msg",obj1);
+                obj_Msg["type"]=5;
             }
         }
     }
 
     QJsonDocument doc;
-    doc.setArray(array);
-    return QString::fromUtf8(doc.toJson(QJsonDocument::Compact).constData());
+    doc.setObject(obj_Msg);
+    return doc.toJson();
 }
 
 void DataInterRabbitMQ::clientDisconnected()
