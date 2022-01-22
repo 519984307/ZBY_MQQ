@@ -600,6 +600,16 @@ color: rgb(0, 85, 0);</string>
         </property>
        </widget>
       </item>
+      <item row="1" column="7" rowspan="2">
+       <widget class="QTextEdit" name="textEdit"/>
+      </item>
+      <item row="1" column="6" rowspan="2">
+       <widget class="QLabel" name="label_17">
+        <property name="text">
+         <string>状态：</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item row="1" column="2">

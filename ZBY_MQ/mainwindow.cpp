@@ -132,6 +132,8 @@ MainWindow::MainWindow(QWidget *parent)
     statistical.close();
     ui->spinBox->setValue(line);
     batch=line;
+
+    isSucess=true;
 }
 
 MainWindow::~MainWindow()
@@ -296,7 +298,7 @@ void MainWindow::writeLog(const QString &msg)
     ui->plainTextEdit->appendPlainText(QString("[%1] [%2] %3").arg("ZBY_MQ",QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"),msg));
 }
 
-void MainWindow::statisticalLog(int w)
+void MainWindow::statisticalLog(QString data)
 {
 #ifdef Q_OS_LINUX
     QString eol = "\n";
@@ -320,7 +322,7 @@ void MainWindow::statisticalLog(int w)
 
     statistical.setFileName(QDir::toNativeSeparators(QString("statistical/%1").arg(date)));
     statistical.open( QIODevice::Append | QIODevice::Text | QIODevice::Unbuffered );
-    statistical.write(QString("%1 - %2").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss-zzz"),QString::number(w)).toUtf8());
+    statistical.write(QString("%1 - %2").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss-zzz"),data).toUtf8());
     statistical.write(eol.toUtf8());
     statistical.close();
 }
@@ -340,7 +342,7 @@ void MainWindow::getPoundsSlot(int x, int y, int w)
     /*****************************
     * @brief:开始做工
     ******************************/
-    if(w>weight && !work){
+    if(w>weight && !work && isSucess){
         if(!work){
             batch++;
             ui->spinBox->setValue(batch);
@@ -356,23 +358,59 @@ void MainWindow::getPoundsSlot(int x, int y, int w)
             ******************************/
             emit setLockStateSignal(true);
 
-            QtConcurrent::run(this,&MainWindow::statisticalLog,w);
+            ui->textEdit->setText(QString("吊箱作业"));
+
+            QtConcurrent::run(this,&MainWindow::statisticalLog,QString("%1 %2 %3").arg(QString::number(x),QString::number(y),QString::number(w)));
         }
         work=true;
+
+        /*****************************
+        * @brief:作业完成状态
+        ******************************/
+        isSucess=false;
     }
 
     /*****************************
     * @brief:落下又拉起
     ******************************/
-    if(w>weight && work && workTimtOut->isActive()){
-        workTimtOut->stop();
+//    if(w>weight && !work && workTimtOut->isActive()){
+//        workTimtOut->stop();
+//    }
+    if(w>weight && workTimtOut->isActive()){
+        ui->textEdit->setText(QString("吊箱对位"));
     }
+
 
     /*****************************
     * @brief做工完成:
     ******************************/
     if(w<weight && work && !workTimtOut->isActive()){
+        //workTimtOut->start(beating*1000);
+
+        /*****************************
+        * @brief:屏蔽延时做工
+        * 20220122
+        ******************************/
+        work=false;
+
+        /*****************************
+        * @brief:开锁
+        ******************************/
+        emit setLockStateSignal(false);
+
+        /*****************************
+        * @brief:保持重量写入数据
+        ******************************/
+        QTimer::singleShot(validTime_weight*1000,this,SLOT(Weight_validTimeSlot()));
+
+        ui->label_3->setStyleSheet("background-color: rgb(170, 0, 0);color: rgb(255, 255, 255);");
+
+        /*****************************
+        * @brief:两个箱之间间隔作业时间
+        ******************************/
         workTimtOut->start(beating*1000);
+
+        ui->textEdit->clear();
     }
 
     ui->spinBox_2->setValue(x);
@@ -408,22 +446,26 @@ void MainWindow::getPlcStatusSlot(QMap<QString, int> msg)
 
 void MainWindow::workTimeOutSlot()
 {
-    /*****************************
-    * @brief:做工完成
-    ******************************/
-    work=false;
+    isSucess=true;
 
-    /*****************************
-    * @brief:闭锁
-    ******************************/
-    emit setLockStateSignal(false);
+    ui->textEdit->clear();
 
-    /*****************************
-    * @brief:保持重量写入数据
-    ******************************/
-    QTimer::singleShot(validTime_weight*1000,this,SLOT(Weight_validTimeSlot()));
+//    /*****************************
+//    * @brief:做工完成
+//    ******************************/
+//    work=false;
 
-    ui->label_3->setStyleSheet("background-color: rgb(170, 0, 0);color: rgb(255, 255, 255);");
+//    /*****************************
+//    * @brief:闭锁
+//    ******************************/
+//    emit setLockStateSignal(false);
+
+//    /*****************************
+//    * @brief:保持重量写入数据
+//    ******************************/
+//    QTimer::singleShot(validTime_weight*1000,this,SLOT(Weight_validTimeSlot()));
+
+//    ui->label_3->setStyleSheet("background-color: rgb(170, 0, 0);color: rgb(255, 255, 255);");
 }
 
 void MainWindow::startStatusSlot(bool status)

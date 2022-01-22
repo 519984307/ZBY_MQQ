@@ -60,7 +60,7 @@ private:
     /// \brief statisticalLog 做工数据写入日志
     /// \param w
     ///
-    void statisticalLog(int w);
+    void statisticalLog(QString data);
 
     ///
     /// \brief setting 初始化参数
@@ -130,6 +130,12 @@ private:
     /// \brief weightModel 磅重模式，0：com,1:modbus
     ///
     int weightModel;
+
+    ///
+    /// \brief isSucess 作业是否完成
+    ///
+    bool isSucess;
+
 
     //MQ
 
