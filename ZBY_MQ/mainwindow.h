@@ -87,6 +87,36 @@ private:
     int w;
 
     ///
+    /// \brief xx 小车位置
+    ///
+    int xx;
+
+    ///
+    /// \brief yy 打车位置
+    ///
+    int yy;
+
+    ///
+    /// \brief zz 吊具位置
+    ///
+    int zz;
+
+    ///
+    /// \brief unLockx 解锁小车位
+    ///
+    int unLockx;
+
+    ///
+    /// \brief unLocky 解锁大车位
+    ///
+    int unLocky;
+
+    ///
+    /// \brief unLockz 解锁吊具高度
+    ///
+    int unLockz;
+
+    ///
     /// \brief mq MQ接口处理类
     ///
     DataInterchangeInterface* mq;
@@ -227,11 +257,6 @@ private:
     ///
     bool work;
 
-    ///
-    /// \brief workTimtOut 做功波动超时
-    ///
-    QTimer* workTimtOut;
-
     //modbus
 
     ///
@@ -365,11 +390,6 @@ private slots:
     /// \param box 着箱
     ///
     void getPlcStatusSlot(QMap<QString, int> msg);
-
-    ///
-    /// \brief workTimeOutSlot 作业波动检测
-    ///
-    void workTimeOutSlot();
 
     ///
     /// \brief startStatusSlot 串口打开状态
