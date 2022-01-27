@@ -137,6 +137,10 @@ MainWindow::MainWindow(QWidget *parent)
     unLockx=-1;
     unLocky=-1;
     unLockz=-1;
+
+    sUnLockx=-1;
+    sUnLocky=-1;
+    sUnLockz=-1;
 }
 
 MainWindow::~MainWindow()
@@ -340,18 +344,26 @@ void MainWindow::getPoundsSlot(int x, int y, int w)
     this->w=w;
 
     if(-1 != unLockx && -1 != unLocky && -1!=unLockz){
-        if(qAbs(unLockx-xx)<500){
-            isSucess=false;
-        }
-        else if (qAbs(unLocky-yy)<1000) {
+        if(qAbs(unLockx-xx)<500 && qAbs(unLocky-yy)<1000){
             isSucess=false;
         }
         else {
             isSucess=true;
+        }
 
+        if(-1 != sUnLockx && -1 != sUnLocky && -1 != sUnLockz){
+            if(qAbs(unLockx-sUnLockx)<500 && qAbs(unLocky-sUnLocky)<1000){
+                isSucess=true;
+            }
+        }
+
+        if(isSucess){
             unLockx=-1;
             unLocky=-1;
             unLockz=-1;
+            sUnLockx=-1;
+            sUnLocky=-1;
+            sUnLockz=-1;
         }
     }
 
@@ -359,6 +371,10 @@ void MainWindow::getPoundsSlot(int x, int y, int w)
     * @brief:开始做工
     ******************************/
     if(w>weight && !work && isSucess){
+        sUnLockx=xx;
+        sUnLocky=yy;
+        sUnLockz=zz;
+
         batch++;
         ui->spinBox->setValue(batch);
         ui->label_3->setStyleSheet("background-color: rgb(0, 170, 0);color: rgb(255, 255, 255);");
@@ -395,10 +411,19 @@ void MainWindow::getPoundsSlot(int x, int y, int w)
     /*****************************
     * @brief做工完成:
     ******************************/
-    if(w<weight && work/* && !workTimtOut->isActive()*/){
+    if(w<weight && work){
         unLockx=xx;
         unLocky=yy;
         unLockz=zz;
+
+        /*****************************
+        * @brief:吊箱第一次没有对准
+        ******************************/
+        if(-1 != sUnLockx && -1 != sUnLocky && -1 != sUnLockz){
+            if(qAbs(xx-sUnLockx)<500 && qAbs(yy-sUnLocky)<1000){
+                return;
+            }
+        }
 
         /*****************************
         * @brief:屏蔽延时做工

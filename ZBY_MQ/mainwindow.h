@@ -117,6 +117,21 @@ private:
     int unLockz;
 
     ///
+    /// \brief sUnLockx 起始小车位置
+    ///
+    int sUnLockx;
+
+    ///
+    /// \brief sUnLocky 起始大车位置
+    ///
+    int sUnLocky;
+
+    ///
+    /// \brief sUnLockz 起始吊具位置
+    ///
+    int sUnLockz;
+
+    ///
     /// \brief mq MQ接口处理类
     ///
     DataInterchangeInterface* mq;
