@@ -74,6 +74,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(pModbus.data(),&DataInterModbus::connectStateSignal,this,&MainWindow::modbusStatusSlot);
     connect(pModbus.data(),&DataInterModbus::setPlcStatusSginal,this,&MainWindow::getPlcStatusSlot);
     connect(pModbus.data(),&DataInterModbus::connectSlaveSignal,this,&MainWindow::connectSlaveSlot);
+    connect(this,&MainWindow::updateModbusSignal,pModbus.data(),&DataInterModbus::updateModbusSlot);
 
     /****************************
     * @brief:初始化磅重
@@ -582,4 +583,11 @@ void MainWindow::on_checkBox_stateChanged(int arg1)
 void MainWindow::Weight_validTimeSlot()
 {
     emit setWeightToSignal(x,y,w);
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    QSharedPointer<PositionDialog> dlg= QSharedPointer<PositionDialog>(new PositionDialog(this));
+    connect(dlg.data(),&PositionDialog::updateModbusSignal,this,&MainWindow::updateModbusSignal);
+    dlg->exec();
 }

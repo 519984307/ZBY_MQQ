@@ -87,12 +87,26 @@ public slots:
     ///
     void getComState(bool status);
 
+    ///
+    /// \brief updateModbusSlot 更新modbus
+    /// \param x
+    /// \param y
+    /// \param z
+    ///
+    void updateModbusSlot(float x, float y, float z);
+
 private:
 
     QThread *pTd;
 
+    ///
+    /// \brief modbusDevice 从站
+    ///
     QModbusClient* modbusDevice;
 
+    ///
+    /// \brief slave 主站
+    ///
     ModbusSlave* slave;
 
     ///
@@ -142,6 +156,21 @@ private:
     /// \brief comState 串口状态
     ///
     bool comState;
+
+    ///
+    /// \brief writeRequest 构造数据结构
+    /// \param startAddr
+    /// \param len
+    /// \return
+    ///
+    QModbusDataUnit writeRequest(int startAddr, quint16 len) const;
+
+    ///
+    /// \brief ieee754_float_to_hex_str
+    /// \param str
+    /// \return
+    ///
+    QString ieee754_float_to_hex_str(float str);
 };
 
 #endif // DATAINTERMODBUS_H

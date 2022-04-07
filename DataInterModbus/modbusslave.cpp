@@ -62,6 +62,10 @@ void ModbusSlave::stateChangedSlot(int state)
 
 void ModbusSlave::updateDataSlot(QModbusDataUnit::RegisterType table, int address, int size)
 {
+    if(!modbusDevice){
+        return;
+    }
+
     for (int i = 0; i < size; ++i) {
         quint16 value;
         QString text;

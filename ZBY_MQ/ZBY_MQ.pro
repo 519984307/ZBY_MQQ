@@ -6,7 +6,7 @@ CONFIG += c++11 skip_target_version_ext
 
 QMAKE_TARGET_COPYRIGHT = "Copyright 2021 Shen zhen zhong bai yuan"
 
-VERSION = 1.0.1.12
+VERSION = 1.1.1.13
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -21,14 +21,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    positiondialog.cpp
 
 HEADERS += \
     datainterchangeinterface.h \
-    mainwindow.h
+    mainwindow.h \
+    positiondialog.h
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    positiondialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

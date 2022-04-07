@@ -22,6 +22,8 @@
 #include "../WeightModbus/weightmodbus.h"
 #include "datainterchangeinterface.h"
 
+#include "positiondialog.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -377,7 +379,16 @@ signals:
     /// \param y
     /// \param w
     ///
-    void setWeightToSignal(int x, int y ,int w);
+    void setWeightToSignal(double x, double y ,double w);
+
+    ///
+    /// \brief updateModbusSignal 更新modbus
+    /// \param x
+    /// \param y
+    /// \param z
+    ///
+    void updateModbusSignal(float x,float y,float z);
+
 
 private slots:
 
@@ -463,5 +474,11 @@ private slots:
     /// \brief Weight_validTimeSlot
     ///
     void Weight_validTimeSlot();
+
+    ///
+    /// \brief on_pushButton_clicked 显示位置图
+    /// \param checked
+    ///
+    void on_pushButton_clicked();
 };
 #endif // MAINWINDOW_H

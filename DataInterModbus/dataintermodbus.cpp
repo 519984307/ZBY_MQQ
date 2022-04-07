@@ -333,3 +333,114 @@ void DataInterModbus::getComState(bool status)
 {
     comState=status;
 }
+
+void DataInterModbus::updateModbusSlot(float x, float y, float z)
+{
+    if(!modbusDevice){
+        return;
+    }
+
+    if(x==-1 && y==-1 && z==-1){
+        return;
+    }
+
+    QList<QModbusDataUnit> DataUnitList;
+
+    if(x!=-1){
+        bool ok;
+        QModbusDataUnit writeUnit = writeRequest(13999,2);
+        QModbusDataUnit::RegisterType table=writeUnit.registerType();
+        QString tmpR=ieee754_float_to_hex_str(x);
+        int j=0;
+        for(uint i=0;i<writeUnit.valueCount();i++){
+            if (table == QModbusDataUnit::Coils){
+                writeUnit.setValue(i,tmpR.mid(j,4).toInt(&ok,16));
+            }
+            else{
+                writeUnit.setValue(i, tmpR.mid(j,4).toInt(&ok,16));
+            }
+            j+=4;
+        }
+        DataUnitList.append(writeUnit);
+    }
+
+    if(y!=-1){
+        bool ok;
+        QModbusDataUnit writeUnit = writeRequest(14001,2);
+        QModbusDataUnit::RegisterType table=writeUnit.registerType();
+        QString tmpR=ieee754_float_to_hex_str(y);
+        int j=0;
+        for(uint i=0;i<writeUnit.valueCount();i++){
+            if (table == QModbusDataUnit::Coils){
+                writeUnit.setValue(i,tmpR.mid(j,4).toInt(&ok,16));
+            }
+            else{
+                writeUnit.setValue(i, tmpR.mid(j,4).toInt(&ok,16));
+            }
+            j+=4;
+        }
+        DataUnitList.append(writeUnit);
+    }
+
+    if(z!=-1){
+        bool ok;
+        QModbusDataUnit writeUnit = writeRequest(14003,2);
+        QModbusDataUnit::RegisterType table=writeUnit.registerType();
+        QString tmpR=ieee754_float_to_hex_str(z);
+        int j=0;
+        for(uint i=0;i<writeUnit.valueCount();i++){
+            if (table == QModbusDataUnit::Coils){
+                writeUnit.setValue(i,tmpR.mid(j,4).toInt(&ok,16));
+            }
+            else{
+                writeUnit.setValue(i, tmpR.mid(j,4).toInt(&ok,16));
+            }
+            j+=4;
+        }
+        DataUnitList.append(writeUnit);
+    }
+
+    foreach(auto writeUnit,DataUnitList){
+        if (auto *reply = modbusDevice->sendWriteRequest(writeUnit, 1)) {
+            if (!reply->isFinished()) {
+                connect(reply, &QModbusReply::finished, this, [ reply]() {
+                    if (reply->error() == QModbusDevice::ProtocolError) {
+                        qWarning().noquote()<<QString("Write response error: %1 (Mobus exception: 0x%2)")
+                            .arg(reply->errorString()).arg(reply->rawResult().exceptionCode(), -1, 16);
+                    } else if (reply->error() != QModbusDevice::NoError) {
+                        qWarning().noquote()<<QString("Write response error: %1 (code: 0x%2)").
+                            arg(reply->errorString()).arg(reply->error(), -1, 16);
+                    }
+                    reply->deleteLater();
+                });
+            } else {
+                reply->deleteLater();
+            }
+        } else {
+            qDebug().noquote()<<QString("Write error: ") + modbusDevice->errorString();
+        }
+    }
+    DataUnitList.clear();
+}
+
+QModbusDataUnit DataInterModbus::writeRequest(int startAddr,quint16 len) const
+{
+    const auto table = static_cast<QModbusDataUnit::RegisterType> (QModbusDataUnit::HoldingRegisters);
+    return QModbusDataUnit(table, startAddr, len);
+}
+
+QString DataInterModbus::ieee754_float_to_hex_str(float str){
+
+    const float value = float(str);
+    const quint32 *i = reinterpret_cast<const quint32 *>(&value);
+
+    QByteArray ba;
+    ba.append(char(*i >> 24));
+    ba.append(char(*i >> 16));
+    ba.append(char(*i >>  8));
+    ba.append(char(*i >>  0));
+
+    QByteArray tmp = ba.toHex().toUpper().mid(4,4);
+    tmp.append(ba.toHex().toUpper().mid(0,4));
+    return tmp;
+}
