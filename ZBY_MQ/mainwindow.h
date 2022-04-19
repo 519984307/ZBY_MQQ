@@ -50,7 +50,7 @@ private:
     /// \brief tcpProcess tcp线程处理
     /// \param tcp
     ///
-    void tcpProcess(DataInterchangeInterface* tcp);
+    void tcpProcess(DataInterchangeInterface* tcp);   
 
     ///
     /// \brief writeLog 日志
@@ -146,7 +146,7 @@ private:
     ///
     /// \brief pLog 日志类
     ///
-    QSharedPointer<LogController> pLog;
+    LogController* pLog;
 
     ///
     /// \brief pPort 串口数据处理类
@@ -172,11 +172,6 @@ private:
     /// \brief statistical 统计文件
     ///
     QFile statistical;
-
-    ///
-    /// \brief weightModel 磅重模式，0：com,1:modbus
-    ///
-    int weightModel;
 
     ///
     /// \brief isSucess 作业是否完成
@@ -224,8 +219,17 @@ private:
     ///
     /// \brief TCPAddr tcp地址
     ///
-    QString TCPAddr;
+    QString TCPAddr2;
 
+    ///
+    /// \brief TCPPort tcp端口号
+    ///
+    int TCPPort2;
+
+    ///
+    /// \brief TCPAddr tcp地址
+    ///
+    QString TCPAddr;
 
     //com
 
@@ -353,11 +357,51 @@ private:
     ///
     int set_weight;
 
+    //USB
+
+    QString vid,pid;
+
+    //Main
+
+    ///
+    /// \brief weightModel 磅重模式，0：com,1:modbus
+    ///
+    int weightModel;
+
+    ///
+    /// \brief interModel 接口模式，0:MQ,1:usb
+    ///
+    int interModel;
+
 signals:
 
+    ///
+    /// \brief MQ_InitializationParameterSignal MQ初始化
+    /// \param address
+    /// \param port
+    /// \param serviceType
+    /// \param heartBeat
+    /// \param serviceMode
+    /// \param shortLink
+    /// \param newline
+    ///
     void  MQ_InitializationParameterSignal(const QString& address,const quint16& port,const int& serviceType,const bool& heartBeat, const int& serviceMode,const int& shortLink,const int& newline);
+
+    ///
+    /// \brief TCP_InitializationParameterSignal TCP初始化
+    /// \param address
+    /// \param port
+    /// \param serviceType
+    /// \param heartBeat
+    /// \param serviceMode
+    /// \param shortLink
+    /// \param newline
+    ///
     void  TCP_InitializationParameterSignal(const QString& address,const quint16& port,const int& serviceType,const bool& heartBeat, const int& serviceMode,const int& shortLink,const int& newline);
 
+    ///
+    /// \brief releaseResourcesSignal 释放资源
+    ///
     void releaseResourcesSignal();
 
     ///
@@ -374,12 +418,12 @@ signals:
     void setLockStateSignal(bool state);
 
     ///
-    /// \brief setWeightToSignal 写入重量数据到MQ
+    /// \brief setWeightSignal 写入重量数据到MQ
     /// \param x
     /// \param y
     /// \param w
     ///
-    void setWeightToSignal(double x, double y ,double w);
+    void setWeightSignal(const int& a,const int& b ,const int& c);
 
     ///
     /// \brief updateModbusSignal 更新modbus

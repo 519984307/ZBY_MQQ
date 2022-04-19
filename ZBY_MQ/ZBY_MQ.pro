@@ -1,12 +1,11 @@
-QT       += core gui concurrent serialbus
+QT  += core gui concurrent serialbus
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-
-CONFIG += c++11 skip_target_version_ext
-
+CONFIG += c++11
+CONFIG += skip_target_version_ext
+VERSION = 1.2.1.15
 QMAKE_TARGET_COPYRIGHT = "Copyright 2021 Shen zhen zhong bai yuan"
 
-VERSION = 1.1.1.13
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -39,6 +38,11 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 RC_ICONS=ICO.ico
+
+MOC_DIR=tmp/moc
+RCC_DIR=tmp/rcc
+UI_DIR=tmp/ui
+OBJECTS_DIR=tmp/obj
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../LogController/release/ -lCc1_Logging
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../LogController/debug/ -lCc1_Loggingd

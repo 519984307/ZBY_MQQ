@@ -80,7 +80,7 @@ public slots:
     /// \brief toSendDataSlot 发送数据
     /// \param data 数据体
     ///
-    virtual void toSendDataSlot(int channel_number,const QString &data)=0;
+    virtual void toSendDataSlot(int channel_number,const QString& data)=0;
 
     ///
     /// \brief getWeightToDataSlot 写入重量数据到MQ
@@ -88,7 +88,7 @@ public slots:
     /// \param y
     /// \param w
     ///
-    virtual void getWeightToDataSlot(int x, int y ,int w)=0;
+    virtual void getWeightToDataSlot(const int& x, const int& y ,const int& w)=0;
 
     ///
     /// \brief releaseResourcesSlot 释放资源
@@ -97,7 +97,7 @@ public slots:
 
 };
 
-#define DataInterchangeInterfaceIID "ZBY.ContainerServer.DataInterchangeInterface/1.2.5.4"
+#define DataInterchangeInterfaceIID "ZBY.ContainerServer.DataInterchangeInterface/1.2.5.5"
 Q_DECLARE_INTERFACE(DataInterchangeInterface,DataInterchangeInterfaceIID);
 
 #endif // DATAINTERCHANGEINTERFACE_H

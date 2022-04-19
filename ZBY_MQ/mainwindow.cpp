@@ -25,8 +25,8 @@ MainWindow::MainWindow(QWidget *parent)
     ******************************/
     setting();
 
-    pLog=QSharedPointer<LogController>(new LogController("ZBY_MQ",this));
-    connect(pLog.data(),SIGNAL(signal_newLogText(QtMsgType,QDateTime,QString)),this,SLOT(slot_newLogText(QtMsgType,QDateTime,QString)));
+    pLog=new LogController("ZBY_MQ",this);
+    connect(pLog,SIGNAL(signal_newLogText(QtMsgType,QDateTime,QString)),this,SLOT(slot_newLogText(QtMsgType,QDateTime,QString)));
 
     QDir plugin(QCoreApplication::applicationDirPath());
     for(const QString &fileName :plugin.entryList(QDir::Files)){
@@ -35,9 +35,17 @@ MainWindow::MainWindow(QWidget *parent)
 
         if(plugin){
             if (DataInterchangeInterface* pDataInterchangeInterface=qobject_cast<DataInterchangeInterface*>(plugin)) {
-                if(pDataInterchangeInterface->InterfaceType()=="MQ"){
+                if(pDataInterchangeInterface->InterfaceType()=="MQ" && (interModel==0 || interModel==3)){
                     mqProcess(pDataInterchangeInterface);
                     qDebug().noquote()<<QString("MQ plugin load sucess");
+                }
+                else if(pDataInterchangeInterface->InterfaceType()=="PORT" && interModel==1){
+                    mqProcess(pDataInterchangeInterface);
+                    qDebug().noquote()<<QString("PORT plugin load sucess");
+                }
+                else if(pDataInterchangeInterface->InterfaceType()=="TCP_2" && (interModel==2 || interModel==3)){
+                    mqProcess(pDataInterchangeInterface);
+                    qDebug().noquote()<<QString("TCP_2 plugin load sucess");
                 }
                 else if(pDataInterchangeInterface->InterfaceType()=="TCP"){
                     tcpProcess(pDataInterchangeInterface);
@@ -62,10 +70,25 @@ MainWindow::MainWindow(QWidget *parent)
     dd="";
 
     /*****************************
-    * @brief:初始化
+    * @brief:初始化插件
     ******************************/
+    QString name;
     TCP_InitializationParameterSignal(TCPAddr,TCPPort,1,false,0,0,0);
-    MQ_InitializationParameterSignal(QString("%1|%2|%3|%4").arg(MQAddr,MQUser,MQPass,MQHost),MQPort,1,false,0,0,0);
+    if(interModel==0 || interModel==3){
+        MQ_InitializationParameterSignal(QString("%1|%2|%3|%4").arg(MQAddr,MQUser,MQPass,MQHost),MQPort,1,false,0,0,0);
+        name="MQ";
+    }
+    if(interModel==1){
+        bool ok;
+        MQ_InitializationParameterSignal(QString(""),MQPort,vid.toInt(&ok,16),false,pid.toInt(&ok,16),0,0);
+        name="PORT";
+    }
+    if(interModel==2 || interModel==3){
+        MQ_InitializationParameterSignal(TCPAddr2,TCPPort2,1,false,0,0,0);
+        name = name.append("_").append("TCP");
+    }
+    ui->label_2->setText(name);
+
 
     /*****************************
     * @brief:初始化Modbus
@@ -158,13 +181,15 @@ MainWindow::~MainWindow()
         pPort->disconnect();
     }
 
-    qInfo()<<QString("Number of spreader work:%1").arg(QString::number(batch));
+    pLog->deleteLater();
 
     delete ui;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    qInfo()<<QString("Number of spreader work:%1").arg(QString::number(batch));
+
     emit releaseResourcesSignal();
     QWidget::closeEvent(event);
 }
@@ -173,6 +198,17 @@ void MainWindow::setting()
 {
     QSettings set(QDir::toNativeSeparators("Sys.ini"),QSettings::IniFormat);
     set.setIniCodec("UTF-8");
+
+    set.beginGroup("Main");
+    weightModel = set.value("weightModel",0).toInt();
+    interModel = set.value("interModel",0).toInt();
+    set.endGroup();
+
+    set.beginGroup("USB");
+    vid = set.value("vid","0").toString();
+    pid = set.value("pid","0").toString();
+    set.endGroup();
+
 
     set.beginGroup("MQ");
     MQAddr = set.value("MQAddr","127.0.0.1").toString();
@@ -188,6 +224,11 @@ void MainWindow::setting()
     TCPAddr = set.value("TCPAddr","127.0.0.1").toString();
     set.endGroup();
 
+    set.beginGroup("TCP2");
+    TCPPort2 = set.value("TCPPort2",8000).toInt();
+    TCPAddr2 = set.value("TCPAddr2","127.0.0.1").toString();
+    set.endGroup();
+
     set.beginGroup("COM");
     PortName = set.value("PortName","com2").toString();
     PortBaud = set.value("PortBaud",19200).toInt();
@@ -196,7 +237,6 @@ void MainWindow::setting()
     PortParity = set.value("PortParity",0).toInt();
     weight = set.value("weight",500).toInt();
     beating = set.value("beating",3).toInt();
-    weightModel = set.value("weightModel",0).toInt();
     set.endGroup();
 
     set.beginGroup("Modbus");
@@ -220,6 +260,10 @@ void MainWindow::setting()
     set_weight = set.value("set_weight",1).toInt();
     set.endGroup();
 
+    set.beginGroup("Main");
+    set.setValue("weightModel",weightModel);
+    set.setValue("interModel",interModel);
+    set.endGroup();
 
     set.beginGroup("MQ");
     set.setValue("MQPort",MQPort);
@@ -235,6 +279,11 @@ void MainWindow::setting()
     set.setValue("TCPPort",TCPPort);
     set.endGroup();
 
+    set.beginGroup("TCP2");
+    set.setValue("TCPAddr2",TCPAddr2);
+    set.setValue("TCPPort2",TCPPort2);
+    set.endGroup();
+
     set.beginGroup("COM");
     set.setValue("PortName",PortName);
     set.setValue("PortBaud",PortBaud);
@@ -243,7 +292,6 @@ void MainWindow::setting()
     set.setValue("PortParity",PortParity);
     set.setValue("weight",weight);
     set.setValue("beating",beating);
-    set.value("weightModel",weightModel);
     set.endGroup();
 
     set.beginGroup("Modbus");
@@ -266,19 +314,23 @@ void MainWindow::setting()
     set.setValue("validTime_weight",validTime_weight);
     set.setValue("set_weight",set_weight);
     set.endGroup();
-}
 
+    set.beginGroup("USB");
+    set.setValue("vid",vid);
+    set.setValue("pid",pid);
+    set.endGroup();
+}
 
 void MainWindow::mqProcess(DataInterchangeInterface *mq)
 {
+    /* 重量写入数据 */
+    connect(this,SIGNAL(setWeightSignal(int,int,int)),mq,SLOT(getWeightToDataSlot(int,int,int)));
     /* 初始化参数 */
     connect(this,&MainWindow::MQ_InitializationParameterSignal,mq,&DataInterchangeInterface::InitializationParameterSlot);
     /* 发送数据 */
-    connect(this,&MainWindow::toSendDataSignal,mq,&DataInterchangeInterface::toSendDataSlot);
+    connect(this,&MainWindow::toSendDataSignal,mq,&DataInterchangeInterface::toSendDataSignal);
     /* 绑定MQ数量到服务界面 */
     connect(mq,&DataInterchangeInterface::linkStateSingal,this,&MainWindow::MQ_socketLinkStateSlot);
-    /* 重量写入数据 */
-    connect(this,&MainWindow::setWeightToSignal,mq,&DataInterchangeInterface::getWeightToDataSlot);
     /* 释放资源 */
     connect(this,&MainWindow::releaseResourcesSignal,mq,&DataInterchangeInterface::releaseResourcesSlot);
 }
@@ -390,7 +442,7 @@ void MainWindow::getPoundsSlot(int x, int y, int w)
         ******************************/
         emit setLockStateSignal(true);
 
-        ui->textEdit->setText(QString("吊箱作业"));
+        ui->textEdit->setText("吊箱作业");
 
         QtConcurrent::run(this,&MainWindow::statisticalLog,QString("%1 %2 %3").arg(QString::number(x),QString::number(y),QString::number(w)));
         work=true;
@@ -402,11 +454,11 @@ void MainWindow::getPoundsSlot(int x, int y, int w)
     }
 
     if(w>weight && !work && !isSucess){
-        ui->textEdit->setText(QString("吊箱对位"));
+        ui->textEdit->setText("吊箱对位");
     }
 
     if(w<weight && !work){
-        ui->textEdit->setText(QString("吊箱完成"));
+        ui->textEdit->setText("吊箱完成");
     }
 
     /*****************************
@@ -582,7 +634,7 @@ void MainWindow::on_checkBox_stateChanged(int arg1)
 
 void MainWindow::Weight_validTimeSlot()
 {
-    emit setWeightToSignal(x,y,w);
+    emit setWeightSignal(x,y,w);
 }
 
 void MainWindow::on_pushButton_clicked()

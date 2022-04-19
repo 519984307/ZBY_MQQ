@@ -19,6 +19,10 @@ QString DataInterRabbitMQ::InterfaceType()
 
 void DataInterRabbitMQ::InitializationParameterSlot(const QString &address, const quint16 &port, const int &serviceType, const bool &heartBeat, const int &serviceMode, const int &shortLink, const int &newline)
 {
+    if(address.indexOf("|")==-1){
+        return;
+    }
+
     Q_UNUSED(serviceType);
     Q_UNUSED(heartBeat);
     Q_UNUSED(serviceMode);
@@ -97,12 +101,13 @@ void DataInterRabbitMQ::releaseResourcesSlot()
     qDebug().noquote()<<QString("DataInterRabbitMQ::releaseResourcesSlot");
 }
 
-void DataInterRabbitMQ::getWeightToDataSlot(int x, int y, int w)
+void DataInterRabbitMQ::getWeightToDataSlot(const int& x, const int& y ,const int& w)
 {
     this->x=x;
     this->y=y;
     this->w=w;
-    qDebug()<<"write weight:"<<w;
+
+    qDebug().noquote()<<QString("write weight<%1>").arg(QString::number(w));
 }
 
 QString DataInterRabbitMQ::analyticalData(const QString &data)
@@ -142,8 +147,8 @@ QString DataInterRabbitMQ::analyticalData(const QString &data)
 
 void DataInterRabbitMQ::clientDisconnected()
 {
-    emit linkStateSingal(addr,m_client.port(),false);
-    emit connectCountSignal(-1);
+//    emit linkStateSingal(addr,m_client.port(),false);
+//    emit connectCountSignal(-1);
 
     if(isConnected && !tmpMsg.isEmpty()){
         isConnected=false;
@@ -157,8 +162,8 @@ void DataInterRabbitMQ::clientDisconnected()
 
 void DataInterRabbitMQ::clientConnected()
 {
-    emit linkStateSingal(addr,lport,true);
-    emit connectCountSignal(1);
+//    emit linkStateSingal(addr,lport,true);
+//    emit connectCountSignal(1);
 
     QAmqpQueue *queue = m_client.createQueue("zby_"+QString::number(channel_number));
     connect(queue, SIGNAL(declared()), this, SLOT(queueDeclared()));

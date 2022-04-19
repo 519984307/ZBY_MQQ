@@ -54,7 +54,7 @@ public:
     /// \param y
     /// \param w
     ///
-    void getWeightToDataSlot(int x, int y ,int w)Q_DECL_OVERRIDE;
+    void getWeightToDataSlot(const int &x, const int& y , const int &w)Q_DECL_OVERRIDE;
 
 private:
 

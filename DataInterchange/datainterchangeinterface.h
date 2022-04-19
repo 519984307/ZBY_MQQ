@@ -82,7 +82,7 @@ public slots:
     /// \param y
     /// \param w
     ///
-    virtual void getWeightToDataSlot(int x, int y ,int w)=0;
+    virtual void getWeightToDataSlot(const int& x, const int& y ,const int& w)=0;
 
     ///
     /// \brief toSendDataSlot 发送数据
@@ -97,7 +97,7 @@ public slots:
 
 };
 
-#define DataInterchangeInterfaceIID "ZBY.ContainerServer.DataInterchangeInterface/1.2.5.4"
+#define DataInterchangeInterfaceIID "ZBY.ContainerServer.DataInterchangeInterface/1.2.5.5"
 Q_DECLARE_INTERFACE(DataInterchangeInterface,DataInterchangeInterfaceIID);
 
 #endif // DATAINTERCHANGEINTERFACE_H

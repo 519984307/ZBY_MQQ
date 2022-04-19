@@ -239,7 +239,7 @@ void DataInterchange::releaseResourcesSlot()
     qDebug().noquote()<<QString("DataInterchange::releaseResourcesSlot");
 }
 
-void DataInterchange::getWeightToDataSlot(int x, int y, int w)
+void DataInterchange::getWeightToDataSlot(const int& x, const int& y ,const int& w)
 {
     Q_UNUSED(x)
     Q_UNUSED(y)

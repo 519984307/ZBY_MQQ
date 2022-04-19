@@ -39,8 +39,9 @@ private:
     J6_X1,J6_X2;
 
 signals:
+
     ///
-    /// \brief setWeightToSignal 写入重量数据到MQ
+    /// \brief updateModbusSignal 写入重量数据到MQ
     /// \param x
     /// \param y
     /// \param w

@@ -205,6 +205,7 @@ void PositionDialog::on_pushButton_clicked()
             y=tmpY+6.625*(5.0/6.0);
             break;
         }
+        y*=10;
     }
     else {
         y=ui->lineEdit_2->text().toFloat();
