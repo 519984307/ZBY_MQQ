@@ -214,7 +214,7 @@ void DataInterTcp::toSendDataSlot(int channel_number,const QString &data)
     }
 
     if(pTcpClient->isOpen()){
-        pTcpClient->write(resultOfMemory.toLatin1());
+        pTcpClient->write(resultOfMemory.simplified().toLatin1());
 
         if(newline){
             pTcpClient->write(eol.toUtf8());

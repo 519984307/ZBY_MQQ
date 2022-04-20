@@ -3,8 +3,8 @@
 IDI_ICON1	ICON	DISCARDABLE	"C:\\Users\\cc\\Documents\\Qt\\ZBY_MQQ\\ZBY_MQ\\ICO.ico"
 
 VS_VERSION_INFO VERSIONINFO
-	FILEVERSION 1,2,1,15
-	PRODUCTVERSION 1,2,1,15
+	FILEVERSION 1,2,1,16
+	PRODUCTVERSION 1,2,1,16
 	FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
 	FILEFLAGS VS_FF_DEBUG
@@ -21,11 +21,11 @@ VS_VERSION_INFO VERSIONINFO
 			BEGIN
 				VALUE "CompanyName", "\0"
 				VALUE "FileDescription", "\0"
-				VALUE "FileVersion", "1.2.1.15\0"
+				VALUE "FileVersion", "1.2.1.16\0"
 				VALUE "LegalCopyright", "Copyright 2021 Shen zhen zhong bai yuan\0"
 				VALUE "OriginalFilename", "ZBY_MQ.exe\0"
 				VALUE "ProductName", "ZBY_MQ\0"
-				VALUE "ProductVersion", "1.2.1.15\0"
+				VALUE "ProductVersion", "1.2.1.16\0"
 			END
 		END
 		BLOCK "VarFileInfo"

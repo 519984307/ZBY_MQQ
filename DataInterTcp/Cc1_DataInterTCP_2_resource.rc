@@ -1,8 +1,8 @@
 #include <windows.h>
 
 VS_VERSION_INFO VERSIONINFO
-	FILEVERSION 1,0,2,7
-	PRODUCTVERSION 1,0,2,7
+	FILEVERSION 1,0,2,8
+	PRODUCTVERSION 1,0,2,8
 	FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
 	FILEFLAGS VS_FF_DEBUG
@@ -19,11 +19,11 @@ VS_VERSION_INFO VERSIONINFO
 			BEGIN
 				VALUE "CompanyName", "\0"
 				VALUE "FileDescription", "\0"
-				VALUE "FileVersion", "1.0.2.7\0"
+				VALUE "FileVersion", "1.0.2.8\0"
 				VALUE "LegalCopyright", "Copyright 2020 Shen zhen zhong bai yuan\0"
 				VALUE "OriginalFilename", "Cc1_DataInterTCP_2.dll\0"
 				VALUE "ProductName", "Cc1_DataInterTCP_2\0"
-				VALUE "ProductVersion", "1.0.2.7\0"
+				VALUE "ProductVersion", "1.0.2.8\0"
 			END
 		END
 		BLOCK "VarFileInfo"

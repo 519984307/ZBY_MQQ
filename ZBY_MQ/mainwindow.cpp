@@ -84,7 +84,7 @@ MainWindow::MainWindow(QWidget *parent)
         name="PORT";
     }
     if(interModel==2 || interModel==3){
-        MQ_InitializationParameterSignal(TCPAddr2,TCPPort2,1,false,0,0,0);
+        MQ_InitializationParameterSignal(TCPAddr2,TCPPort2,1,false,0,0,1);
         name = name.append("_").append("TCP");
     }
     ui->label_2->setText(name);

@@ -2,7 +2,7 @@ QT  += core gui concurrent serialbus
 
 CONFIG += c++11
 CONFIG += skip_target_version_ext
-VERSION = 1.2.1.15
+VERSION = 1.2.1.16
 QMAKE_TARGET_COPYRIGHT = "Copyright 2021 Shen zhen zhong bai yuan"
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
