@@ -8,7 +8,7 @@ TARGET = DataInterTCP_2
 TEMPLATE = lib
 
 CONFIG += skip_target_version_ext
-VERSION = 1.0.2.8
+VERSION = 1.0.2.9
 QMAKE_TARGET_COPYRIGHT = "Copyright 2020 Shen zhen zhong bai yuan"
 
 DEFINES += DATAINTERTCP_LIBRARY
